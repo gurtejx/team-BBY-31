@@ -2,7 +2,7 @@
 COMP 2800 group project created by 
 Team BBY-31
 
-- Abhishek Chouhan
+- Abhishek (Ash) Chouhan
 - Gurtej Malik
 - Amrit Jhatu
 - Armaan Pruthi
