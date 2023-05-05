@@ -146,3 +146,62 @@ app.get('/login', (req,res) => {
   
     res.redirect('/members');
   });
+
+  app.get('/signUp', (req,res) => {
+    var html = `
+    <h2 style="width: 400px; margin: 0 auto; margin-top: 5%; margin-bottom: 5%; font-family: 'Comic Sans MS'">Welcome, register as new user here</h2>
+    <div style="background-color: rgba(0, 0, 255, 0.2); padding: 20px; width: 400px; margin: 0 auto; border-radius: 10px;">
+      <h2 style="color: #333; text-align: center;">Sign Up</h2>
+      <form action='/submitUser' method='post' style="display: flex; flex-direction: column;">
+      <input name='name' type='text' placeholder='Name' style="padding: 10px; margin-bottom: 10px; border: none; border-radius: 5px;">
+      <input name='email' type='text' placeholder='Email' style="padding: 10px; margin-bottom: 10px; border: none; border-radius: 5px;">
+      <input name='password' type='password' placeholder='Password' style="padding: 10px; margin-bottom: 10px; border: none; border-radius: 5px;">
+      <button style="background-color: #007bff; color: #fff; padding: 10px; border: none; border-radius: 5px;">Submit</button>
+      </form>
+      ${req.query.blank === 'true' ? '<p style="color: red;">Fields cannot be blank. Please try again.</p>' : ''}
+      ${req.query.invalid === 'true' ? '<p style="color: red;">Invalid Format. Please try again.</p>' : ''}
+    </div>
+    `;
+    res.send(html);
+  });
+
+  app.post('/submitUser', async (req,res) => {
+    var name = req.body.name;
+    var email = req.body.email;
+    var password = req.body.password;
+    
+    // check to see if username or password was blank, redirect to signUp page, with message that fields were blank
+    if(email == "" || password == "" || name == "") {
+      res.redirect("/signUp?blank=true");
+      return;
+    }
+  
+    const schema = Joi.object(
+      {
+        name: Joi.string().regex(/^[a-zA-Z ]+$/).max(20).required(),
+        email: Joi.string().email().max(50).required(),
+        password: Joi.string().max(20).required()
+      }
+    );
+  
+    const validationResult = schema.validate({name, email, password});
+  
+    if (validationResult.error != null) {
+      console.log(validationResult.error);
+      res.redirect("/signUp?invalid=true");
+      return;
+    }
+  
+    var hashedPassword = await bcrypt.hashSync(password, saltRounds);
+  
+    await userCollection.insertOne({name: name, email: email, password: hashedPassword});
+    console.log("Inserted user");
+  
+    // grant user a session and set it to be valid
+    req.session.authenticated = true;
+    req.session.email = email;
+    req.session.cookie.maxAge = expireTime;
+    req.session.name = name;
+  
+    res.redirect('/members');
+  });
