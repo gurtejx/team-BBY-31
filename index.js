@@ -106,6 +106,50 @@ app.get('/login', (req,res) => {
     res.send(html);
   });
 
+  app.post('/loggingin', async (req,res) => {
+    var email = req.body.email;
+    var password = req.body.password;
+  
+    if(email == "" || password == "") {
+      res.redirect("/login?blank=true");
+      return;
+    }
+  
+    const schema = Joi.string().email().max(50).required();
+    const validationResult = schema.validate(email);
+    if (validationResult.error != null) {
+      console.log(validationResult.error);
+      res.redirect("/login?invalid=true");
+      return;
+    }
+  
+    const result = await userCollection.find({
+      email: email
+    }).project({name: 1, email: 1, password: 1, _id: 1}).toArray();
+    console.log(result);
+  
+    if(result.length != 1) {
+      console.log("user not found");
+      // that means user has not registered probably
+      res.redirect("/login?incorrect=true");
+      return;
+    }
+  
+    // check if password matches for the username found in the database
+    if (await bcrypt.compare(password, result[0].password)) {
+      console.log("correct password");
+      req.session.authenticated = true;
+      req.session.email = email;
+      req.session.cookie.maxAge = expireTime;
+      // console.log(result[0].name);
+      req.session.name = result[0].name; 
+      res.redirect('/members');
+    } else {
+      //user and password combination not found
+      res.redirect("/login?incorrectPass=true");
+    }
+  });
+
   app.post('/submitUser', async (req,res) => {
     var name = req.body.name;
     var email = req.body.email;
