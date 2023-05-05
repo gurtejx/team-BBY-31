@@ -1,0 +1,15 @@
+{
+  "name": "2800-202310-bby31",
+  "version": "1.0.0",
+  "description": "For my project term 2, COMP 2800",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "BBY-31",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "express": "^4.18.2"
+  }
+}

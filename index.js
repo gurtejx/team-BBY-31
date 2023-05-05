@@ -1,6 +1,12 @@
-const express = require("express"); // imports the express.js module and assigns it to a constant variable named express
-const session = require("express-session"); // imports the sessions library.
-const MongoStore = require("connect-mongo");
+require("./utils.js");
+
+require('dotenv').config();
+const express = require('express'); // imports the express.js module and assigns it to a constant variable named express
+const session = require('express-session'); // imports the sessions library.
+const MongoStore = require('connect-mongo');
+const Joi = require("joi"); // input field validation library
+const bcrypt = require('bcrypt');
+const saltRounds = 12;
 
 /*
   creates an instance of the Express application by calling the express function.
@@ -56,11 +62,11 @@ const port = process.env.PORT || 3020;
   Response go to the webpage.
 */
 app.get("/", (req, res) => {
-  var header = (
+  var header = `(
     <h1 style="text-align: center; margin-top: 10%; color: red; font-family: 'Comic Sans MS'; margin-top: 10%;">
       Welcome to my app! This is the homepage
     </h1>
-  );
+  )`;
 
   var notLoggedIn = (
     <div style="text-align: center;">
