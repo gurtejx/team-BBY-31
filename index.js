@@ -202,48 +202,135 @@ app.get("/signUp", (req, res) => {
   res.send(html);
 });
 
-app.post("/submitUser", async (req, res) => {
-  var name = req.body.name;
+app.get('/members', (req, res) => {
+  if (!req.session.authenticated) {
+    res.redirect('/login?notLoggedIn=true');
+    return;
+  }
+
+  // Generate a random number between 1 and 3
+  const randomNum = Math.floor(Math.random() * 3) + 1;
+
+  // Construct the path to the random cat image using string concatenation
+  const imagePath = '/cat' + randomNum + '.gif';
+
+  var html = `
+  <div style="text-align: center; color: red; font-family: 'Comic Sans MS'; margin-top: 5%;">
+    <h1>Welcome, ${req.session.name} !<br>This is the member's page</h1>
+    <div style='text-align:center;'><img src=${imagePath} style='width:250px; border: 1px solid black;'></div>
+    <div style="margin-top: 2%;">
+      <form action="/">
+      <button type="submit">Homepage</button>
+      </form>
+      <form action="/signout">
+      <button type="submit">Sign out</button>
+      </form>
+    </div>
+  </div>
+  `;
+  res.send(html);
+});
+
+app.post('/loggingin', async (req,res) => {
   var email = req.body.email;
   var password = req.body.password;
 
-  // check to see if username or password was blank, redirect to signUp page, with message that fields were blank
-  if (email == "" || password == "" || name == "") {
-    res.redirect("/signUp?blank=true");
+  if(email == "" || password == "") {
+    res.redirect("/login?blank=true");
     return;
   }
 
-  const schema = Joi.object({
-    name: Joi.string()
-      .regex(/^[a-zA-Z ]+$/)
-      .max(20)
-      .required(),
-    email: Joi.string().email().max(50).required(),
-    password: Joi.string().max(20).required(),
-  });
-
-  const validationResult = schema.validate({ name, email, password });
-
+  const schema = Joi.string().email().max(50).required();
+  const validationResult = schema.validate(email);
   if (validationResult.error != null) {
     console.log(validationResult.error);
-    res.redirect("/signUp?invalid=true");
+    res.redirect("/login?invalid=true");
     return;
   }
 
-  var hashedPassword = await bcrypt.hashSync(password, saltRounds);
+  const result = await userCollection.find({
+    email: email
+  }).project({name: 1, email: 1, password: 1, _id: 1}).toArray();
+  console.log(result);
 
-  await userCollection.insertOne({
-    name: name,
-    email: email,
-    password: hashedPassword,
-  });
-  console.log("Inserted user");
+  if(result.length != 1) {
+    console.log("user not found");
+    // that means user has not registered probably
+    res.redirect("/login?incorrect=true");
+    return;
+  }
 
-  // grant user a session and set it to be valid
-  req.session.authenticated = true;
-  req.session.email = email;
-  req.session.cookie.maxAge = expireTime;
-  req.session.name = name;
-
-  res.redirect("/members");
+  // check if password matches for the username found in the database
+  if (await bcrypt.compare(password, result[0].password)) {
+    console.log("correct password");
+    req.session.authenticated = true;
+    req.session.email = email;
+    req.session.cookie.maxAge = expireTime;
+    // console.log(result[0].name);
+    req.session.name = result[0].name; 
+    res.redirect('/members');
+  } else {
+    //user and password combination not found
+    res.redirect("/login?incorrectPass=true");
+  }
 });
+
+// catches the /about route
+app.get('/about', (req,res) => {
+  var color = req.query.color;
+  res.send(`<h1 style="color:${color}; text-align: center; margin-top: 10%; font-family: 'Comic Sans MS';">Made by<br>Abhishek Chouhan</h1>`);
+});
+
+//show cat images
+app.get('/cat/:id', (req,res) => {
+
+  var cat = req.params.id;
+
+  if (cat == 1) {
+    res.send("<div style='text-align:center; margin-top: 10%;'>Fluffy:<br><img src='/fluffy.gif' style='width:250px; border: 1px solid black;'></div>");
+      // res.send("Fluffy: <img src='/fluffy.gif' style='width:250px;'>");
+  }
+  else if (cat == 2) {
+    res.send("<div style='text-align:center; margin-top: 10%;'>Socks:<br><img src='/socks.gif' style='width:250px; border: 1px solid black;'></div>");
+    // res.send("Socks: <img src='/socks.gif' style='width:250px;'>");
+  }
+  else {
+    // res.send("Invalid cat id: "+cat);
+    res.send("<div style='text-align:center; background-color: #ffcccc; padding: 10px; border-radius: 5px;'>Invalid cat id: " + cat + "</div>");
+  }
+});
+
+app.get('/signout', (req, res) => {
+  req.session.destroy();
+    var html = `
+    <h1 style="text-align: center; margin-top: 10%; color: red; font-family: 'Comic Sans MS'; margin-top: 10%;">You are logged out!</h1>
+    <div style="text-align: center;">
+      <form action="/">
+        <button type="submit">Homepage</button>
+      </form>
+    </div>
+    `;
+  res.send(html);
+}); 
+
+app.use(express.static(__dirname + "/public"));
+
+// redirect all other mistakes by user (pages that do not exist) to a meaningful warning
+app.get("*", (req,res) => {
+	res.status(404);
+	res.send(`
+    <div style="text-align: center; margin-top: 10%; color: red; font-family: 'Comic Sans MS'; margin-top: 10%;">
+      <h1>Sorry, This page does not exist - 404</h1>
+      <h3>You might want to check your URL ^_^</h3>
+    </div>
+  `);
+});
+
+/*
+  starts the application listening on the specified port ('port') and logs a message to the console
+  indicating which port the application is listening on.
+*/
+app.listen(port, () => {
+    console.log(`Node application listening on port: ${port}`);
+});
+
