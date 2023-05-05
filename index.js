@@ -106,24 +106,6 @@ app.get('/login', (req,res) => {
     res.send(html);
   });
 
-  app.get('/signUp', (req,res) => {
-    var html = `
-    <h2 style="width: 400px; margin: 0 auto; margin-top: 5%; margin-bottom: 5%; font-family: 'Comic Sans MS'">Welcome, register as new user here</h2>
-    <div style="background-color: rgba(0, 0, 255, 0.2); padding: 20px; width: 400px; margin: 0 auto; border-radius: 10px;">
-      <h2 style="color: #333; text-align: center;">Sign Up</h2>
-      <form action='/submitUser' method='post' style="display: flex; flex-direction: column;">
-      <input name='name' type='text' placeholder='Name' style="padding: 10px; margin-bottom: 10px; border: none; border-radius: 5px;">
-      <input name='email' type='text' placeholder='Email' style="padding: 10px; margin-bottom: 10px; border: none; border-radius: 5px;">
-      <input name='password' type='password' placeholder='Password' style="padding: 10px; margin-bottom: 10px; border: none; border-radius: 5px;">
-      <button style="background-color: #007bff; color: #fff; padding: 10px; border: none; border-radius: 5px;">Submit</button>
-      </form>
-      ${req.query.blank === 'true' ? '<p style="color: red;">Fields cannot be blank. Please try again.</p>' : ''}
-      ${req.query.invalid === 'true' ? '<p style="color: red;">Invalid Format. Please try again.</p>' : ''}
-    </div>
-    `;
-    res.send(html);
-  });
-
   app.post('/submitUser', async (req,res) => {
     var name = req.body.name;
     var email = req.body.email;
