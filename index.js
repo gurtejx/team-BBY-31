@@ -106,48 +106,45 @@ app.get('/login', (req,res) => {
     res.send(html);
   });
 
-  app.post('/loggingin', async (req,res) => {
+  app.post('/submitUser', async (req,res) => {
+    var name = req.body.name;
     var email = req.body.email;
     var password = req.body.password;
-  
-    if(email == "" || password == "") {
-      res.redirect("/login?blank=true");
+    
+    // check to see if username or password was blank, redirect to signUp page, with message that fields were blank
+    if(email == "" || password == "" || name == "") {
+      res.redirect("/signUp?blank=true");
       return;
     }
   
-    const schema = Joi.string().email().max(50).required();
-    const validationResult = schema.validate(email);
+    const schema = Joi.object(
+      {
+        name: Joi.string().regex(/^[a-zA-Z ]+$/).max(20).required(),
+        email: Joi.string().email().max(50).required(),
+        password: Joi.string().max(20).required()
+      }
+    );
+  
+    const validationResult = schema.validate({name, email, password});
+  
     if (validationResult.error != null) {
       console.log(validationResult.error);
-      res.redirect("/login?invalid=true");
+      res.redirect("/signUp?invalid=true");
       return;
     }
   
-    const result = await userCollection.find({
-      email: email
-    }).project({name: 1, email: 1, password: 1, _id: 1}).toArray();
-    console.log(result);
+    var hashedPassword = await bcrypt.hashSync(password, saltRounds);
   
-    if(result.length != 1) {
-      console.log("user not found");
-      // that means user has not registered probably
-      res.redirect("/login?incorrect=true");
-      return;
-    }
+    await userCollection.insertOne({name: name, email: email, password: hashedPassword});
+    console.log("Inserted user");
   
-    // check if password matches for the username found in the database
-    if (await bcrypt.compare(password, result[0].password)) {
-      console.log("correct password");
-      req.session.authenticated = true;
-      req.session.email = email;
-      req.session.cookie.maxAge = expireTime;
-      // console.log(result[0].name);
-      req.session.name = result[0].name; 
-      res.redirect('/members');
-    } else {
-      //user and password combination not found
-      res.redirect("/login?incorrectPass=true");
-    }
+    // grant user a session and set it to be valid
+    req.session.authenticated = true;
+    req.session.email = email;
+    req.session.cookie.maxAge = expireTime;
+    req.session.name = name;
+  
+    res.redirect('/members');
   });
 
   app.get('/signUp', (req,res) => {
