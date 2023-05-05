@@ -3,6 +3,51 @@ const session = require('express-session'); // imports the sessions library.
 const MongoStore = require('connect-mongo');
 
 /*
+  creates an instance of the Express application by calling the express function.
+  Assigns the result to a constant variables named app.
+  thus, 'app' const is an express app instance.
+*/
+const app = express(); 
+
+// By adding this middleware to your application, you can access the form data sent by the client in a URL-encoded format. 
+// This data will be available in the req.body object.
+app.use(express.urlencoded({extended: false}));
+
+const expireTime = 1 * 60 * 60 * 1000; //expires after 1 hour, time is stored in milliseconds  (hours * minutes * seconds * millis)
+
+/* secret information section */
+const mongodb_host = process.env.MONGODB_HOST;
+const mongodb_user = process.env.MONGODB_USER;
+const mongodb_password = process.env.MONGODB_PASSWORD;
+const mongodb_database = process.env.MONGODB_DATABASE;
+const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
+
+const node_session_secret = process.env.NODE_SESSION_SECRET;
+
+var {database} = include('databaseConnection');
+
+const userCollection = database.db(mongodb_database).collection('users');
+
+var mongoStore = MongoStore.create({
+	mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_database}`,
+  crypto: {
+		secret: mongodb_session_secret
+	}
+});
+
+app.use(session({ 
+  secret: node_session_secret,
+	store: mongoStore, //default is memory store 
+	saveUninitialized: false, 
+	resave: true
+}
+));
+
+// sets the port the application will listen on. checks if 'PORT' environment variable is set
+// if it is, it uses that value. If not set, it defaults to port 3020.
+const port = process.env.PORT || 3020;
+
+/*
   defines a route handler for the HTTP GET request method at the root path ('/').
   When a user visits the root path of the application, the handler function will be called
   with the request ('req') and response ('res') objects.
@@ -40,8 +85,9 @@ app.get('/', (req, res) => {
       res.send(header + loggedIn);
     } 
   });
-  app.get('/login', (req,res) => {
-  var html = 
+
+app.get('/login', (req,res) => {
+  var html = `
     <h2 style="width: 400px; margin: 0 auto; margin-top: 5%; margin-bottom: 5%; font-family: 'Comic Sans MS'">Welcome, Here you can log in to the app.</h2>
     <div style="background-color: rgba(0, 0, 255, 0.2); padding: 20px; width: 400px; margin: 0 auto; border-radius: 10px;">
       <h2 style="color: #333; text-align: center;">Log In</h2>
@@ -55,7 +101,7 @@ app.get('/', (req, res) => {
       ${req.query.blank === 'true' ? '<p style="color: red;">Email/Password cannot be blank. Please try again.</p>' : ''}
       ${req.query.invalid === 'true' ? '<p style="color: red;">Invalid format. Please try again.</p>' : ''}
       ${req.query.notLoggedIn === 'true' ? '<p style="color: red;">Login to access Member\'s Page.</p>' : ''}
-    </div>
+    </div>`
   ;
     res.send(html);
   });
