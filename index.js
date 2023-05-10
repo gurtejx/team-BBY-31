@@ -27,7 +27,6 @@ const mongodb_user = process.env.MONGODB_USER;
 const mongodb_password = process.env.MONGODB_PASSWORD;
 const mongodb_database = process.env.MONGODB_DATABASE;
 const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
-
 const node_session_secret = process.env.NODE_SESSION_SECRET;
 
 var { database } = include("databaseConnection");
@@ -40,6 +39,8 @@ var mongoStore = MongoStore.create({
     secret: mongodb_session_secret,
   },
 });
+
+app.set('view engine', 'ejs');
 
 app.use(
   session({
@@ -61,81 +62,25 @@ const port = process.env.PORT || 3020;
   In this case, the function sends the string "Hello World!" as the response.
   Response go to the webpage.
 */
-app.get("/", (req, res) => {
-  var header = `(
-    <h1 style="text-align: center; margin-top: 10%; color: red; font-family: 'Comic Sans MS'; margin-top: 10%;">
-      Welcome to my app! This is the homepage
-    </h1>
-  )`;
+app.get('/', (req, res) => {
+  res.render('homepage', {session: req.session});
+});
 
-  var notLoggedIn = (
-    <div style="text-align: center;">
-      <form action="/signUp">
-        <button type="submit">Sign Up</button>
-      </form>
-      <form action="/login">
-        <button type="submit">Login</button>
-      </form>
-    </div>
-  );
-
-  // check if loggedin, and change content based on whether User has a valid session or not
-  if (!req.session.authenticated) {
-    res.send(header + notLoggedIn);
+function sessionValidation(req, res, next) {
+  if (req.session.authenticated) {
+    console.log("Session authorized");
+    return next();
   } else {
-    var loggedIn = (
-      <div style="text-align: center;">
-        <form action="/members">
-          <button type="submit">Member's Page</button>
-        </form>
-        <form action="/signout">
-          <button type="submit">Sign Out</button>
-        </form>
-      </div>
-    );
-    res.send(header + loggedIn);
+    res.redirect("login?notLoggedIn=true");
   }
+}
+
+// route for sign up
+app.get('/signUp', (req,res) => {
+  res.render('signUp', {req});
 });
 
-app.get("/login", (req, res) => {
-  var html = `
-    <h2 style="width: 400px; margin: 0 auto; margin-top: 5%; margin-bottom: 5%; font-family: 'Comic Sans MS'">Welcome, Here you can log in to the app.</h2>
-    <div style="background-color: rgba(0, 0, 255, 0.2); padding: 20px; width: 400px; margin: 0 auto; border-radius: 10px;">
-      <h2 style="color: #333; text-align: center;">Log In</h2>
-      <form action='/loggingin' method='post' style="display: flex; flex-direction: column;">
-      <input name='email' type='text' placeholder='Email' style="padding: 10px; margin-bottom: 10px; border: none; border-radius: 5px;">
-      <input name='password' type='password' placeholder='Password' style="padding: 10px; margin-bottom: 10px; border: none; border-radius: 5px;">
-      <button style="background-color: #007bff; color: #fff; padding: 10px; border: none; border-radius: 5px;">Submit</button>
-      </form>
-      ${
-        req.query.incorrect === "true"
-          ? '<p style="color: red;">Email not in record. Sign up please.</p>'
-          : ""
-      }
-      ${
-        req.query.incorrectPass === "true"
-          ? '<p style="color: red;">Incorrect password. Please try again.</p>'
-          : ""
-      }
-      ${
-        req.query.blank === "true"
-          ? '<p style="color: red;">Email/Password cannot be blank. Please try again.</p>'
-          : ""
-      }
-      ${
-        req.query.invalid === "true"
-          ? '<p style="color: red;">Invalid format. Please try again.</p>'
-          : ""
-      }
-      ${
-        req.query.notLoggedIn === "true"
-          ? '<p style="color: red;">Login to access Member\'s Page.</p>'
-          : ""
-      }
-    </div>`;
-  res.send(html);
-});
-
+// route for 'submitUser'
 app.post("/submitUser", async (req, res) => {
   var name = req.body.name;
   var email = req.body.email;
@@ -179,64 +124,15 @@ app.post("/submitUser", async (req, res) => {
   req.session.cookie.maxAge = expireTime;
   req.session.name = name;
 
-  res.redirect("/members");
+  res.redirect("/main");
 });
 
-app.get("/signUp", (req, res) => {
-  var html = `
-    <h2 style="width: 400px; margin: 0 auto; margin-top: 5%; margin-bottom: 5%; font-family: 'Comic Sans MS'">Welcome, register as new user here</h2>
-    <div style="background-color: rgba(0, 0, 255, 0.2); padding: 20px; width: 400px; margin: 0 auto; border-radius: 10px;">
-      <h2 style="color: #333; text-align: center;">Sign Up</h2>
-      <form action='/submitUser' method='post' style="display: flex; flex-direction: column;">
-      <input name='name' type='text' placeholder='Name' style="padding: 10px; margin-bottom: 10px; border: none; border-radius: 5px;">
-      <input name='email' type='text' placeholder='Email' style="padding: 10px; margin-bottom: 10px; border: none; border-radius: 5px;">
-      <input name='password' type='password' placeholder='Password' style="padding: 10px; margin-bottom: 10px; border: none; border-radius: 5px;">
-      <button style="background-color: #007bff; color: #fff; padding: 10px; border: none; border-radius: 5px;">Submit</button>
-      </form>
-      ${
-        req.query.blank === "true"
-          ? '<p style="color: red;">Fields cannot be blank. Please try again.</p>'
-          : ""
-      }
-      ${
-        req.query.invalid === "true"
-          ? '<p style="color: red;">Invalid Format. Please try again.</p>'
-          : ""
-      }
-    </div>
-    `;
-  res.send(html);
+// route for login page
+app.get('/login', (req,res) => {
+  res.render('login', {req});
 });
 
-app.get('/members', (req, res) => {
-  if (!req.session.authenticated) {
-    res.redirect('/login?notLoggedIn=true');
-    return;
-  }
-
-  // Generate a random number between 1 and 3
-  const randomNum = Math.floor(Math.random() * 3) + 1;
-
-  // Construct the path to the random cat image using string concatenation
-  const imagePath = '/cat' + randomNum + '.gif';
-
-  var html = `
-  <div style="text-align: center; color: red; font-family: 'Comic Sans MS'; margin-top: 5%;">
-    <h1>Welcome, ${req.session.name} !<br>This is the member's page</h1>
-    <div style='text-align:center;'><img src=${imagePath} style='width:250px; border: 1px solid black;'></div>
-    <div style="margin-top: 2%;">
-      <form action="/">
-      <button type="submit">Homepage</button>
-      </form>
-      <form action="/signout">
-      <button type="submit">Sign out</button>
-      </form>
-    </div>
-  </div>
-  `;
-  res.send(html);
-});
-
+// route for 'loggingin'
 app.post('/loggingin', async (req,res) => {
   var email = req.body.email;
   var password = req.body.password;
@@ -257,10 +153,8 @@ app.post('/loggingin', async (req,res) => {
   const result = await userCollection.find({
     email: email
   }).project({name: 1, email: 1, password: 1, _id: 1}).toArray();
-  console.log(result);
 
   if(result.length != 1) {
-    console.log("user not found");
     // that means user has not registered probably
     res.redirect("/login?incorrect=true");
     return;
@@ -268,94 +162,42 @@ app.post('/loggingin', async (req,res) => {
 
   // check if password matches for the username found in the database
   if (await bcrypt.compare(password, result[0].password)) {
-    console.log("correct password");
     req.session.authenticated = true;
     req.session.email = email;
     req.session.cookie.maxAge = expireTime;
-    // console.log(result[0].name);
     req.session.name = result[0].name; 
-    res.redirect('/members');
+    res.redirect('/main');
   } else {
     //user and password combination not found
     res.redirect("/login?incorrectPass=true");
   }
 });
 
+app.get('/main', sessionValidation, (req, res) => {
+  res.render('main', {name: req.session.name});
+});
+ 
+
 // catches the /about route
 app.get('/about', (req,res) => {
-  var color = req.query.color;
-  res.send(`<h1 style="color:${color}; text-align: center; margin-top: 10%; font-family: 'Comic Sans MS';">Made by<br>Abhishek Chouhan</h1>`);
+  res.render('about');
 });
 
 app.get('/contact', (req, res) => {
-  var html = `
-  Welcome to the contact page. 
-  <br>
-  Please use the contact information for any questions you may have.
-  <br>
-  <br>
-  BC Supreme Court:
-  <br>
-  #: 250-426-1234
-  <br>
-  Email: sc.scheduling_ka@bccourts.ca
-  <br>
-  Supreme Court of Canada:
-  <br>
-  #: 1-888-551-1185
-  <br>
-  Email: reception@scc-csc.ca
-  <br>
-  <form action="/">
-  <button type="submit">Return Home</button>
-  </form>
-  `;
-res.send(html);
+res.render('contact');
 }); 
-
-//show cat images
-app.get('/cat/:id', (req,res) => {
-
-  var cat = req.params.id;
-
-  if (cat == 1) {
-    res.send("<div style='text-align:center; margin-top: 10%;'>Fluffy:<br><img src='/fluffy.gif' style='width:250px; border: 1px solid black;'></div>");
-      // res.send("Fluffy: <img src='/fluffy.gif' style='width:250px;'>");
-  }
-  else if (cat == 2) {
-    res.send("<div style='text-align:center; margin-top: 10%;'>Socks:<br><img src='/socks.gif' style='width:250px; border: 1px solid black;'></div>");
-    // res.send("Socks: <img src='/socks.gif' style='width:250px;'>");
-  }
-  else {
-    // res.send("Invalid cat id: "+cat);
-    res.send("<div style='text-align:center; background-color: #ffcccc; padding: 10px; border-radius: 5px;'>Invalid cat id: " + cat + "</div>");
-  }
-});
 
 app.get('/signout', (req, res) => {
   req.session.destroy();
-    var html = `
-    <h1 style="text-align: center; margin-top: 10%; color: red; font-family: 'Comic Sans MS'; margin-top: 10%;">You are logged out!</h1>
-    <div style="text-align: center;">
-      <form action="/">
-        <button type="submit">Homepage</button>
-      </form>
-    </div>
-    `;
-  res.send(html);
+  res.render('signout');
 }); 
 
 app.use(express.static(__dirname + "/public"));
 
-// redirect all other mistakes by user (pages that do not exist) to a meaningful warning
+// 404 error
 app.get("*", (req,res) => {
 	res.status(404);
-	res.send(`
-    <div style="text-align: center; margin-top: 10%; color: red; font-family: 'Comic Sans MS'; margin-top: 10%;">
-      <h1>Sorry, This page does not exist - 404</h1>
-      <h3>You might want to check your URL ^_^</h3>
-    </div>
-  `);
+  res.render('404');
 });
 
 /*
