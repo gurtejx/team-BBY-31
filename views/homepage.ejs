@@ -1,0 +1,27 @@
+<%- include("templates/header") %>
+
+<h1 style="text-align: center; margin-top: 10%;" class="alert alert-primary">Welcome to LegallyWise!</h1>
+
+<% if (!session.authenticated) { %>
+  <div style="text-align: center;">
+    <form action="/signUp">
+      <button type="submit" class="btn btn-primary">Sign Up</button>
+    </form>
+    <br>
+    <form action="/login">
+      <button type="submit" class="btn btn-primary" style="border-color: black;">Login</button>
+    </form>
+  </div>
+<% } else { %>
+  <div style="text-align: center;">
+    <form action="/main">
+      <button type="submit" class="btn btn-primary">Main Page</button>
+    </form>
+    <br>
+    <form action="/signout">
+      <button type="submit" class="btn btn-secondary">Sign Out</button>
+    </form>
+  </div>
+<% } %>
+
+<%- include("templates/footer") %>
