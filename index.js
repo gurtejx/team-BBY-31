@@ -287,6 +287,32 @@ app.get('/about', (req,res) => {
   res.send(`<h1 style="color:${color}; text-align: center; margin-top: 10%; font-family: 'Comic Sans MS';">Made by<br>Abhishek Chouhan</h1>`);
 });
 
+app.get('/contact', (req, res) => {
+  var html = `
+  Welcome to the contact page. 
+  <br>
+  Please use the contact information for any questions you may have.
+  <br>
+  <br>
+  BC Supreme Court:
+  <br>
+  #: 250-426-1234
+  <br>
+  Email: sc.scheduling_ka@bccourts.ca
+  <br>
+  Supreme Court of Canada:
+  <br>
+  #: 1-888-551-1185
+  <br>
+  Email: reception@scc-csc.ca
+  <br>
+  <form action="/">
+  <button type="submit">Return Home</button>
+  </form>
+  `;
+res.send(html);
+}); 
+
 //show cat images
 app.get('/cat/:id', (req,res) => {
 
