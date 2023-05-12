@@ -127,6 +127,10 @@ app.post("/submitUser", async (req, res) => {
   res.redirect("/main");
 });
 
+app.get('/securityQuestion', (req, res) => {
+  res.render('securityQuestion', {req});
+});
+
 // route for login page
 app.get('/login', (req,res) => {
   res.render('login', {req});
