@@ -95,7 +95,7 @@ app.post("/submitUser", async (req, res) => {
 
   const schema = Joi.object({
     name: Joi.string().regex(/^[a-zA-Z ]+$/).max(20).required(),
-    username: Joi.string().regex(/^[a-zA-Z ]+$/).max(20).required(),
+    username: Joi.string().regex(/^[a-zA-Z0-9 ]+$/).max(20).required(),
     email: Joi.string().email().max(50).required(),
     password: Joi.string().max(20).required(),
   });
@@ -137,7 +137,7 @@ app.post("/setSecurityQuestion", async (req, res) => {
     email: email,
     password: hashedPassword,
     question: question,
-    answer: answer,
+    answer: answer
   });
 
   console.log("Inserted user with security question");
@@ -167,7 +167,7 @@ app.post('/loggingin', async (req,res) => {
     return;
   }
 
-  const schema = Joi.string().regex(/^[a-zA-Z ]+$/).max(20).required();
+  const schema = Joi.string().regex(/^[a-zA-Z0-9 ]+$/).max(20).required();
   const validationResult = schema.validate(username);
   if (validationResult.error != null) {
     console.log(validationResult.error);
@@ -217,6 +217,96 @@ app.get('/signout', (req, res) => {
   req.session.destroy();
   res.render('signout');
 }); 
+
+app.get('/forgotPassword', (req, res) => {
+  res.render('forgotPassword', {req});
+});
+
+app.post('/resetPassword', async (req,res) => {
+  var username = req.body.username;
+
+  if(username == "" ) {
+    res.redirect("/forgotPassword?blank=true");
+    return;
+  }
+
+  const schema = Joi.string().regex(/^[a-zA-Z0-9 ]+$/).max(20).required();
+  const validationResult = schema.validate(username);
+  if (validationResult.error != null) {
+    console.log(validationResult.error);
+    res.redirect("/forgotPassword?invalid=true");
+    return;
+  }
+
+  const result = await userCollection.find({
+    username: username
+  }).project({name: 1, username: 1, email: 1, password: 1, question: 1, answer: 1, _id: 1}).toArray();
+
+  if(result.length != 1) {
+    // that means user is not registered probably
+    res.redirect("/forgotPassword?incorrect=true");
+    return;
+  }
+
+  req.session.username = username;
+  req.session.question = result[0].question;
+  req.session.answer = result[0].answer; 
+  res.render("askSecurityQuestion", {req: req});
+  //res.redirect("/askSecurityQuestion");
+
+});
+
+app.get('/askSecurityQuestion', (req, res) => {
+  res.render("askSecurityQuestion", req);
+})
+
+app.post('/verifySecurityQuestion', async (req, res) => {
+  var givenAns = req.body.answer;
+
+  if(givenAns == "" ) {
+    res.redirect("/askSecurityQuestion?blank=true");
+    return;
+  }
+
+  if (givenAns != req.session.answer) {
+    res.redirect("/askSecurityQuestion?incorrect=true");
+    return;
+  }
+
+  res.render('setNewPassword', {req});
+});
+
+app.post('/updatePassword', async (req, res) => {
+  var newPassword = req.body.password;
+  var confirmPassword = req.body.password2;
+
+  if(password == "" || confirmPassword == "") {
+    res.redirect("/setNewPassword?blank=true");
+    return;
+  }
+
+  const schema = Joi.string().max(20).required();
+  const validationResult = schema.validate({password, confirmPassword});
+  if (validationResult.error != null) {
+    console.log(validationResult.error);
+    res.redirect("/setNewPassword?invalid=true");
+    return;
+  }
+
+  if (password != confirmPassword) {
+    res.redirect("/unmatched?blank=true");
+    return;
+  }
+
+  userCollection.updateOne(
+    { username: req.session.username },
+    { $set: { password: password } }
+  );
+
+  console.log("Password updated successfully!")
+  res.redirect('/login');
+
+})
 
 app.use(express.static(__dirname + "/public"));
 

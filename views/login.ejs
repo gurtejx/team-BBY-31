@@ -7,6 +7,8 @@
         <input name='username' type='text' placeholder='Username' class="p-2 mb-2">
         <input name='password' type='password' placeholder='Password' class="p-2 mb-2">
         <button class="btn btn-primary" style=" color: #fff; padding: 10px;">Submit</button>
+        <br>
+        <a href="/forgotPassword">Forgot username/password ?</a>
         </form>
         
         <!-- if errorVariable = true, display error message -->
@@ -22,7 +24,7 @@
             <p style="color: red;">Username not in record. Sign up please.</p>
             <button class="btn btn-primary"><a href="/signUp"  style="color: #fff; text-decoration: none;">Sign Up</a></button>
         <% } %>
-    
+
         <% if (req.query.incorrectPass) { %>
             <p style="color: red;">Incorrect password. Please try again.</p>
         <% } %>
