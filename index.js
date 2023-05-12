@@ -229,7 +229,7 @@ app.post('/respond', async (req, res) => {
 
 app.get('/fetchProfile', sessionValidation, async (req, res) => {
   try {
-    const user = await userCollection.findOne({ email: req.session.email }, { projection: { name: 1, email: 1, profession:1} });
+    const user = await userCollection.findOne({ username: req.session.username }, { projection: { name: 1, username: 1, email: 1, profession:1} });
     res.json({ user });
   } catch (err) {
     console.error(err);

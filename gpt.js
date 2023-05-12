@@ -25,6 +25,7 @@ async function getResponse(prompt) {
     // console.log(response.data.choices[0].text.substring(3));
     return response.data.choices[0].text.substring(0);
     } catch (error) {
+        console.log(error);
         console.log('not working');
     }
     // res.send('find complexity page');
