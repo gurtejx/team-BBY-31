@@ -83,25 +83,24 @@ app.get('/signUp', (req,res) => {
 // route for 'submitUser'
 app.post("/submitUser", async (req, res) => {
   var name = req.body.name;
+  var username = req.body.username;
   var email = req.body.email;
   var password = req.body.password;
 
   // check to see if username or password was blank, redirect to signUp page, with message that fields were blank
-  if (email == "" || password == "" || name == "") {
+  if (email == "" || password == "" || name == "" || username == "") {
     res.redirect("/signUp?blank=true");
     return;
   }
 
   const schema = Joi.object({
-    name: Joi.string()
-      .regex(/^[a-zA-Z ]+$/)
-      .max(20)
-      .required(),
+    name: Joi.string().regex(/^[a-zA-Z ]+$/).max(20).required(),
+    username: Joi.string().regex(/^[a-zA-Z ]+$/).max(20).required(),
     email: Joi.string().email().max(50).required(),
     password: Joi.string().max(20).required(),
   });
 
-  const validationResult = schema.validate({ name, email, password });
+  const validationResult = schema.validate({ name, username, email, password });
 
   if (validationResult.error != null) {
     console.log(validationResult.error);
@@ -111,6 +110,7 @@ app.post("/submitUser", async (req, res) => {
 
   // Set session variables
   req.session.name = name;
+  req.session.username = username;
   req.session.email = email;
   req.session.password = password;
 
@@ -124,6 +124,7 @@ app.post("/setSecurityQuestion", async (req, res) => {
 
   // Get the inputs from the previous form using session variables
   var name = req.session.name;
+  var username = req.session.username;
   var email = req.session.email;
   var password = req.session.password;
 
@@ -132,6 +133,7 @@ app.post("/setSecurityQuestion", async (req, res) => {
   // Insert both sets of data into the database
   await userCollection.insertOne({
     name: name,
+    username: username,
     email: email,
     password: hashedPassword,
     question: question,
@@ -145,6 +147,7 @@ app.post("/setSecurityQuestion", async (req, res) => {
   req.session.cookie.maxAge = expireTime;
   req.session.email = email;
   req.session.name = name;
+  req.session.username = username;
 
   res.redirect("/main");
 });
@@ -156,16 +159,16 @@ app.get('/login', (req,res) => {
 
 // route for 'loggingin'
 app.post('/loggingin', async (req,res) => {
-  var email = req.body.email;
+  var username = req.body.username;
   var password = req.body.password;
 
-  if(email == "" || password == "") {
+  if(username == "" || password == "") {
     res.redirect("/login?blank=true");
     return;
   }
 
-  const schema = Joi.string().email().max(50).required();
-  const validationResult = schema.validate(email);
+  const schema = Joi.string().regex(/^[a-zA-Z ]+$/).max(20).required();
+  const validationResult = schema.validate(username);
   if (validationResult.error != null) {
     console.log(validationResult.error);
     res.redirect("/login?invalid=true");
@@ -173,8 +176,8 @@ app.post('/loggingin', async (req,res) => {
   }
 
   const result = await userCollection.find({
-    email: email
-  }).project({name: 1, email: 1, password: 1, _id: 1}).toArray();
+    username: username
+  }).project({name: 1, username: 1, email: 1, password: 1, _id: 1}).toArray();
 
   if(result.length != 1) {
     // that means user has not registered probably
@@ -186,6 +189,7 @@ app.post('/loggingin', async (req,res) => {
   if (await bcrypt.compare(password, result[0].password)) {
     req.session.authenticated = true;
     req.session.email = email;
+    req.session.username = username;
     req.session.cookie.maxAge = expireTime;
     req.session.name = result[0].name; 
     res.redirect('/main');
