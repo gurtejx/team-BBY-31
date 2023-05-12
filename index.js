@@ -179,12 +179,17 @@ app.get('/main', sessionValidation, (req, res) => {
 });
 
 app.post('/respond', async (req, res) => {
-  var question = req.body.prompt;
+  var prompt = req.body.prompt;
   var language = req.body.language;
+  
+  // role prompt
+  prompt = prompt.concat(`Reply as a lawyer`);
 
-  console.log(question + language);
+  // translation prompt engineer
+  prompt = prompt.concat(`\nTranslate response to ${language}.`);
 
-  res.send({ answer: question });
+  var response = await getResponse(prompt);
+  res.send({ answer: response });
 
   // Process the question and generate the answer
   // var answer = generateAnswer(question, language);

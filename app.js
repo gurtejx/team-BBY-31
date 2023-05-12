@@ -1,12 +1,19 @@
-document.getElementById("question-form").addEventListener("submit", function(event) {
-    event.preventDefault(); // prevent default form submission behavior
-    console.log("worked\n");
-    this.submit(); // submit the form to the iframe
-});
-
-document.getElementById("response-frame").addEventListener("load", function() {
-    var responseText = this.contentDocument.body.textContent;
-    var response = JSON.parse(responseText);
-    console.log(response);
-    document.getElementById("answer").innerHTML = response.answer;
-});
+$(document).ready(function() {
+    $('#question-form').submit(function(event) {
+      event.preventDefault(); // Prevent default form submission behavior
+      var question = $('#question-input').val();
+      var language = $('#formLanguageSelect').val();
+  
+      // Send an AJAX request to the server
+      $.ajax({
+        type: 'POST',
+        url: '/respond',
+        data: { prompt: question, language: language },
+        success: function(response) {
+          // Display the response in the answerDiv
+          $('#answer').text(response.answer);
+        }
+      });
+    });
+  });
+  

@@ -17,13 +17,13 @@ async function getResponse(prompt) {
         const response = await openai.createCompletion({
         model: "text-davinci-003",
         prompt: prompt,
-        max_tokens: 14,
+        max_tokens: 30,
         temperature: 0.7,
     });
     // console.log(response);
     // console.log(response.data.choices);
     // console.log(response.data.choices[0].text.substring(3));
-    return response.data.choices[0].text.substring(2);
+    return response.data.choices[0].text.substring(0);
     } catch (error) {
         console.log('not working');
     }
