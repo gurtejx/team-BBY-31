@@ -1,12 +1,12 @@
 <%- include("templates/header") %>
 
 <div class="mt-5">
-    <div class="alert alert-primary"  style="padding: 15px; width: 400px; margin: 0 auto;">
+    <div class="alert alert-primary"  style="padding: 15px; width: 350px; margin: 0 auto;">
         <h2 style=" text-align: center;">Log In</h2>
         <form action='/loggingin' method='post' style="display: flex; flex-direction: column;">
         <input name='email' type='text' placeholder='Email' class="p-2 mb-2">
         <input name='password' type='password' placeholder='Password' class="p-2 mb-2">
-        <button class="btn btn-primary" style=" color: #fff; padding: 10px;">Submit</button>
+        <button class="btn btn-primary" style=" color: #fff; padding: 10px;" type="submit">Submit</button>
         </form>
         
         <!-- if errorVariable = true, display error message -->
