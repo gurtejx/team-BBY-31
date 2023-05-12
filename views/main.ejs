@@ -1,5 +1,7 @@
 <%- include("templates/header") %>
 
+  <script src="/app.js"></script>
+
 
   <!-- <link rel="stylesheet" href="/public/css/main.css"> -->
 
@@ -31,54 +33,12 @@
     }
   </style>
 
-<script>
-  const button = document.querySelector('button');
-  const answerDiv = document.querySelector('#answer');
-  const form = document.querySelector('form');
-
-  button.addEventListener('click', event => {
-    event.preventDefault(); // prevent the default form submission behavior
-
-    const prompt = document.querySelector('#question-input').value;
-    const language = document.querySelector('#formLanguageSelect').value;
-
-    // call the getResponse function
-    getResponse(prompt, language)
-      .then(response => {
-        // set the response in the answer div
-        answerDiv.innerText = response;
-      })
-      .catch(error => {
-        console.error(error);
-      });
-  });
-
-  function getResponse(prompt, language) {
-    // send a POST request to the server with the prompt and language
-    return fetch('/respond', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ prompt, language })
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Unable to get response.');
-        }
-        return response.text(); // extract the response as plain text
-      });
-  }
-</script>
-
-
-
   <!-- Content -->
   <div class="container-fluid">
     <div class="row">
       <div class="col-sm-12">
         <h1 class="text-center my-5">Welcome to LegallyWise AI!</h1>
-        <form action='/respond' method='post'>
+        <form action='/respond' method='post' target="response-frame">
           <input id="question-input" name="prompt" type="text" class="form-control" placeholder="Enter your legal question">
           <div class="form-group">
               <label for="formLanguageSelect">Select Language</label>
@@ -98,8 +58,38 @@
             <div id="answer" class="my-4"></div>
           </div>
         </div>
+        <iframe id="response-frame" name="response-frame" style="display: none;"></iframe>
       </div>
     </div>
   </div>
+
+  <!-- <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      document.getElementById("question-form").addEventListener("submit", function(event) {
+        event.preventDefault(); // prevent default form submission behavior
+        console.log("worked");
+
+        // Get the question and language from the form
+        const question = document.getElementById("question-input").value;
+        const language = document.getElementById("language-select").value;
+
+        // Send the question and language to the server using fetch()
+        fetch("/respond", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ question, language })
+        })
+        .then(response => response.json())
+        .then(data => {
+          // Update the answer div with the response from the server
+          const answerDiv = document.getElementById("answer");
+          answerDiv.innerHTML = data.answer;
+        })
+        .catch(error => console.error(error));
+      });
+    });
+  </script> -->
 
   <%- include("templates/footer") %>

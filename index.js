@@ -179,23 +179,21 @@ app.get('/main', sessionValidation, (req, res) => {
 });
 
 app.post('/respond', async (req, res) => {
+  var question = req.body.prompt;
+  var language = req.body.language;
 
-  const prompt = req.body.prompt;
-  const language = req.body.language;
-  
-  console.log(prompt + "\n" + language);
+  console.log(question + language);
 
-  // call a function to get the response based on the prompt and language
-  const response = getResponse(prompt, language);
+  res.send({ answer: question });
 
-  // send the response as a plain text response
-  res.setHeader('Content-Type', 'text/plain');
-  res.send(response);
-  // const prompt = req.body.prompt;
+  // Process the question and generate the answer
+  // var answer = generateAnswer(question, language);
 
-  // prompt = prompt.concat(`\nTranslate response to ${req.body.language}`);
-  // const response = await getResponse(req.body.prompt);
+  // Send the answer as JSON
+  // res.setHeader('Content-Type', 'application/json');
+  // res.status(200).send(JSON.stringify({answer: question}));
 });
+
 
 // catches the /about route
 app.get('/about', (req,res) => {
