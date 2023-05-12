@@ -10,6 +10,7 @@
         const data = await response.json();
         $('#name').text(data.user.name);
         $('#email').text(data.user.email);
+        $('#profession').text(data.user.profession);
       } catch (err) {
         console.error(err);
       }
@@ -22,5 +23,6 @@
   <h1>Profile</h1>
   <p>Name: <span id="name"></span></p>
   <p>Email: <span id="email"></span></p>
+  <p>Profession: <span id="profession"></span></p>
 </body>
 <%- include("templates/footer") %>

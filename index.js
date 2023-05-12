@@ -86,6 +86,7 @@ app.post("/submitUser", async (req, res) => {
   var name = req.body.name;
   var email = req.body.email;
   var password = req.body.password;
+  var profession = req.body.profession;
 
   // check to see if username or password was blank, redirect to signUp page, with message that fields were blank
   if (email == "" || password == "" || name == "") {
@@ -100,9 +101,10 @@ app.post("/submitUser", async (req, res) => {
       .required(),
     email: Joi.string().email().max(50).required(),
     password: Joi.string().max(20).required(),
+    profession: Joi.string().max(50).required(),
   });
 
-  const validationResult = schema.validate({ name, email, password });
+  const validationResult = schema.validate({ name, email, password, profession });
 
   if (validationResult.error != null) {
     console.log(validationResult.error);
@@ -116,6 +118,7 @@ app.post("/submitUser", async (req, res) => {
     name: name,
     email: email,
     password: hashedPassword,
+    profession: profession,
   });
   console.log("Inserted user");
 
@@ -153,7 +156,7 @@ app.post('/loggingin', async (req,res) => {
 
   const result = await userCollection.find({
     email: email
-  }).project({name: 1, email: 1, password: 1, _id: 1}).toArray();
+  }).project({name: 1, email: 1, password: 1, _id: 1, profession: 1}).toArray();
 
   if(result.length != 1) {
     // that means user has not registered probably
@@ -180,7 +183,7 @@ app.get('/main', sessionValidation, (req, res) => {
  
 app.get('/fetchProfile', sessionValidation, async (req, res) => {
   try {
-    const user = await userCollection.findOne({ email: req.session.email }, { projection: { name: 1, email: 1} });
+    const user = await userCollection.findOne({ email: req.session.email }, { projection: { name: 1, email: 1, profession:1} });
     res.json({ user });
   } catch (err) {
     console.error(err);
