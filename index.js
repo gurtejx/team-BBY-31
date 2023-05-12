@@ -178,6 +178,16 @@ app.get('/main', sessionValidation, (req, res) => {
   res.render('main', {name: req.session.name});
 });
  
+app.get('/fetchProfile', sessionValidation, async (req, res) => {
+  try {
+    const user = await userCollection.findOne({ email: req.session.email }, { projection: { name: 1, email: 1} });
+    res.json({ user });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 // catches the /profile route
 app.get('/profile', (req,res) => {
   res.render('profile');
