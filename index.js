@@ -134,6 +134,7 @@ app.post("/setSecurityQuestion", async (req, res) => {
   var password = req.session.password;
 
   var hashedPassword = await bcrypt.hashSync(password, saltRounds);
+  var hashedAnswer = await bcrypt.hashSync(answer, saltRounds);
 
   // Insert both sets of data into the database
   await userCollection.insertOne({
@@ -142,7 +143,7 @@ app.post("/setSecurityQuestion", async (req, res) => {
     email: email,
     password: hashedPassword,
     question: question,
-    answer: answer,
+    answer: hashedAnswer,
     profession: profession
   });
 
@@ -308,13 +309,20 @@ app.post('/verifySecurityQuestion', async (req, res) => {
     return;
   }
 
-  if (givenAns != req.session.answer) {
+  // if (givenAns != req.session.answer) {
+  //   res.redirect("/askSecurityQuestion?incorrect=true");
+  //   return;
+  // }
+
+  if (await bcrypt.compare(givenAns, req.session.answer)) {
+    //res.render('setNewPassword', {req});
+    res.redirect("/setNewPassword");
+  }
+  else {
     res.redirect("/askSecurityQuestion?incorrect=true");
     return;
   }
-
-  //res.render('setNewPassword', {req});
-  res.redirect("/setNewPassword");
+  
 });
 
 app.get('/setNewPassword', (req, res) => {
