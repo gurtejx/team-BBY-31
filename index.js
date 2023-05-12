@@ -115,6 +115,7 @@ app.post("/submitUser", async (req, res) => {
   req.session.name = name;
   req.session.username = username;
   req.session.email = email;
+  req.session.profession = profession;
   req.session.password = password;
 
   res.render('securityQuestion', {req});
@@ -129,6 +130,7 @@ app.post("/setSecurityQuestion", async (req, res) => {
   var name = req.session.name;
   var username = req.session.username;
   var email = req.session.email;
+  var profession = req.session.profession;
   var password = req.session.password;
 
   var hashedPassword = await bcrypt.hashSync(password, saltRounds);
