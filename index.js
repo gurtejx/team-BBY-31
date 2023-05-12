@@ -251,13 +251,13 @@ app.post('/resetPassword', async (req,res) => {
   req.session.username = username;
   req.session.question = result[0].question;
   req.session.answer = result[0].answer; 
-  res.render("askSecurityQuestion", {req: req});
-  //res.redirect("/askSecurityQuestion");
+  //res.render("askSecurityQuestion", {req: req});
+  res.redirect("/askSecurityQuestion");
 
 });
 
 app.get('/askSecurityQuestion', (req, res) => {
-  res.render("askSecurityQuestion", req);
+  res.render('askSecurityQuestion', {req});
 })
 
 app.post('/verifySecurityQuestion', async (req, res) => {
@@ -273,6 +273,11 @@ app.post('/verifySecurityQuestion', async (req, res) => {
     return;
   }
 
+  //res.render('setNewPassword', {req});
+  res.redirect("/setNewPassword");
+});
+
+app.get('/setNewPassword', (req, res) => {
   res.render('setNewPassword', {req});
 });
 
@@ -280,29 +285,34 @@ app.post('/updatePassword', async (req, res) => {
   var newPassword = req.body.password;
   var confirmPassword = req.body.password2;
 
-  if(password == "" || confirmPassword == "") {
+  if(newPassword == "" || confirmPassword == "") {
     res.redirect("/setNewPassword?blank=true");
     return;
   }
 
-  const schema = Joi.string().max(20).required();
-  const validationResult = schema.validate({password, confirmPassword});
-  if (validationResult.error != null) {
-    console.log(validationResult.error);
+  const schema = Joi.string().regex(/^[a-zA-Z0-9 ]+$/).max(20).required();
+  const newPasswordValidation = schema.validate(newPassword);
+  const confirmPasswordValidation = schema.validate(confirmPassword);
+  if (newPasswordValidation.error != null || confirmPasswordValidation.error != null) {
+    console.log(newPasswordValidation.error);
+    console.log(confirmPasswordValidation.error);
     res.redirect("/setNewPassword?invalid=true");
     return;
   }
 
-  if (password != confirmPassword) {
-    res.redirect("/unmatched?blank=true");
+  if (newPassword != confirmPassword) {
+    res.redirect("/setNewPassword?unmatched=true");
     return;
   }
 
+  var hashedPassword = await bcrypt.hashSync(newPassword, saltRounds);
+  console.log({username: req.session.username});
   userCollection.updateOne(
     { username: req.session.username },
-    { $set: { password: password } }
+    { $set: { password: hashedPassword } }
   );
 
+  //alert('Password updated successfully!');
   console.log("Password updated successfully!")
   res.redirect('/login');
 
