@@ -2,3 +2,4 @@
 package-lock.json
 .env
 mongoDbPass
+api_key
