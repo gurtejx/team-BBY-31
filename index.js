@@ -1,5 +1,5 @@
 require("./utils.js");
-
+const { getResponse } = require("./gpt"); // imported the custom gpt.js as a custom module to be utilized.
 require('dotenv').config();
 const express = require('express'); // imports the express.js module and assigns it to a constant variable named express
 const session = require('express-session'); // imports the sessions library.

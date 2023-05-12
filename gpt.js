@@ -17,24 +17,29 @@ async function getResponse(prompt) {
         const response = await openai.createCompletion({
         model: "text-davinci-003",
         prompt: prompt,
-        max_tokens: 12,
+        max_tokens: 14,
         temperature: 0.7,
     });
     // console.log(response);
     // console.log(response.data.choices);
     // console.log(response.data.choices[0].text.substring(3));
-    return response.data.choices[0].text.substring(3);
+    return response.data.choices[0].text.substring(2);
     } catch (error) {
         console.log('not working');
     }
     // res.send('find complexity page');
 }
 
+module.exports = { getResponse };
 
-(async () => {
-    const response = await getResponse("What is your name");
-    console.log(response);
-  })();
+
+// (async () => {
+//     const response = await getResponse("What is your name");
+//     console.log(response);
+//   })();
+
+
+
 // app.get('/', (req, res) => {
 //   console.log('start of greatness');
 //   res.send('open ai test');
@@ -55,8 +60,8 @@ async function getResponse(prompt) {
 //   res.send('find complexity page');
 // });
 
-const port = process.env.PORT || 8020;
+// const port = process.env.PORT || 8020;
 
-app.listen(port, () => {
-  console.log("Node app listening on port: " + port);
-})
+// app.listen(port, () => {
+//   console.log("Node app listening on port: " + port);
+// })
