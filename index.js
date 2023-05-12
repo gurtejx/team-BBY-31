@@ -175,9 +175,27 @@ app.post('/loggingin', async (req,res) => {
 });
 
 app.get('/main', sessionValidation, (req, res) => {
-  res.render('main', {name: req.session.name});
+  res.render('main');
 });
- 
+
+app.post('/respond', async (req, res) => {
+
+  const prompt = req.body.prompt;
+  const language = req.body.language;
+  
+  console.log(prompt + "\n" + language);
+
+  // call a function to get the response based on the prompt and language
+  const response = getResponse(prompt, language);
+
+  // send the response as a plain text response
+  res.setHeader('Content-Type', 'text/plain');
+  res.send(response);
+  // const prompt = req.body.prompt;
+
+  // prompt = prompt.concat(`\nTranslate response to ${req.body.language}`);
+  // const response = await getResponse(req.body.prompt);
+});
 
 // catches the /about route
 app.get('/about', (req,res) => {

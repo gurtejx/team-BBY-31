@@ -31,17 +31,58 @@
     }
   </style>
 
+<script>
+  const button = document.querySelector('button');
+  const answerDiv = document.querySelector('#answer');
+  const form = document.querySelector('form');
+
+  button.addEventListener('click', event => {
+    event.preventDefault(); // prevent the default form submission behavior
+
+    const prompt = document.querySelector('#question-input').value;
+    const language = document.querySelector('#formLanguageSelect').value;
+
+    // call the getResponse function
+    getResponse(prompt, language)
+      .then(response => {
+        // set the response in the answer div
+        answerDiv.innerText = response;
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  });
+
+  function getResponse(prompt, language) {
+    // send a POST request to the server with the prompt and language
+    return fetch('/respond', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ prompt, language })
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Unable to get response.');
+        }
+        return response.text(); // extract the response as plain text
+      });
+  }
+</script>
+
+
 
   <!-- Content -->
   <div class="container-fluid">
     <div class="row">
       <div class="col-sm-12">
         <h1 class="text-center my-5">Welcome to LegallyWise AI!</h1>
-        <form>
-          <input id="question-input" type="text" class="form-control" placeholder="Enter your legal question">
+        <form action='/respond' method='post'>
+          <input id="question-input" name="prompt" type="text" class="form-control" placeholder="Enter your legal question">
           <div class="form-group">
               <label for="formLanguageSelect">Select Language</label>
-              <select class="form-control" id="formLanguageSelect">
+              <select class="form-control" id="formLanguageSelect" name="language">
                 <option>English</option>
                 <option>French</option>
                 <option>Spanish</option>
