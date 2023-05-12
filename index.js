@@ -109,26 +109,44 @@ app.post("/submitUser", async (req, res) => {
     return;
   }
 
+  // Set session variables
+  req.session.name = name;
+  req.session.email = email;
+  req.session.password = password;
+
+  res.render('securityQuestion', {req});
+});
+
+app.post("/setSecurityQuestion", async (req, res) => {
+  // Get the inputs from the security question form
+  var question = req.body.question;
+  var answer = req.body.answer;
+
+  // Get the inputs from the previous form using session variables
+  var name = req.session.name;
+  var email = req.session.email;
+  var password = req.session.password;
+
   var hashedPassword = await bcrypt.hashSync(password, saltRounds);
 
+  // Insert both sets of data into the database
   await userCollection.insertOne({
     name: name,
     email: email,
     password: hashedPassword,
+    question: question,
+    answer: answer,
   });
-  console.log("Inserted user");
 
-  // grant user a session and set it to be valid
+  console.log("Inserted user with security question");
+
+  // Grant user a session and set it to be valid
   req.session.authenticated = true;
-  req.session.email = email;
   req.session.cookie.maxAge = expireTime;
+  req.session.email = email;
   req.session.name = name;
 
   res.redirect("/main");
-});
-
-app.get('/securityQuestion', (req, res) => {
-  res.render('securityQuestion', {req});
 });
 
 // route for login page
