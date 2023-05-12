@@ -2,27 +2,39 @@
 <head>
   <title>Profile</title>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script>
-  $(document).ready(function () {
-    async function fetchProfile() {
-      try {
-        const response = await fetch('/fetchProfile');
-        const data = await response.json();
-        $('#name').text(data.user.name);
-        $('#email').text(data.user.email);
-        $('#profession').text(data.user.profession);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-    fetchProfile();
-  });
-  </script>
 </head>
 <body>
-  <h1>Profile</h1>
-  <p>Name: <span id="name"></span></p>
-  <p>Email: <span id="email"></span></p>
-  <p>Profession: <span id="profession"></span></p>
+  <div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="card border-primary shadow-lg">
+      <div class="card-body">
+        <h5 class="card-title text-center mb-4 text-primary">User Profile</h5>
+        <div class="mb-3">
+          <strong class="text-primary">Name:</strong> <span id="name"></span>
+        </div>
+        <div class="mb-3">
+          <strong class="text-primary">Email:</strong> <span id="email"></span>
+        </div>
+        <div class="mb-3">
+          <strong class="text-primary">Profession:</strong> <span id="profession"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(document).ready(function () {
+      async function fetchProfile() {
+        try {
+          const response = await fetch('/fetchProfile');
+          const data = await response.json();
+          $('#name').text(data.user.name);
+          $('#email').text(data.user.email);
+          $('#profession').text(data.user.profession);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+      fetchProfile();
+    });
+  </script>
 </body>
 <%- include("templates/footer") %>
