@@ -1,0 +1,25 @@
+#answer {
+  border: 2px solid #392f5a;
+  padding: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  min-height: 200px;
+}
+#question-input {
+  width: 50%;
+  height: 100px;
+  font-size: 20px;
+  padding: 20px;
+  border: 2px solid #392f5a;
+  border-radius: 10px;
+  margin: 0 auto 20px auto;
+  display: block;
+}
+button[type="submit"] {
+  background-color: #e46461;
+  border-color: #9dd9d2;
+  color: #e0dfd5;
+  font-size: 20px;
+  font-weight: bold;
+  padding: 10px 30px;
+}

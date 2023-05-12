@@ -1,28 +1,64 @@
 <%- include("templates/header") %>
 
-<div class="text-center mt-3">
-    <h2>Welcome, <%= name %> !<br>This is the main page</h1>
-    <div class="container">
-      <div class="row">
-        <div class="col-sm">
-          <img src="/public/cat1.gif" style="border: 1px solid black; max-width: 300px; max-height: 300px;" class="img-fluid" alt="Image 1">
-        </div>
-        <div class="col-sm">
-          <img src="/public/cat2.gif" style="border: 1px solid black; max-width: 300px; max-height: 300px;" class="img-fluid" alt="Image 2">
-        </div>
-        <div class="col-sm">
-          <img src="/public/cat3.gif" style="border: 1px solid black; max-width: 300px; max-height: 300px;" class="img-fluid" alt="Image 3">
+
+  <!-- <link rel="stylesheet" href="/public/css/main.css"> -->
+
+  <style>
+    #answer {
+      border: 2px solid #392f5a;
+      padding: 10px;
+      font-size: 20px;
+      font-weight: bold;
+      min-height: 200px;
+    }
+    #question-input {
+      width: 50%;
+      height: 100px;
+      font-size: 20px;
+      padding: 20px;
+      border: 2px solid #392f5a;
+      border-radius: 10px;
+      margin: 0 auto 20px auto;
+      display: block;
+    }
+    button[type="submit"] {
+      background-color: #1215b8;
+      border-color: #9dd9d2;
+      color: #e0dfd5;
+      font-size: 20px;
+      font-weight: bold;
+      padding: 10px 30px;
+    }
+  </style>
+
+
+  <!-- Content -->
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-12">
+        <h1 class="text-center my-5">Welcome to LegallyWise AI!</h1>
+        <form>
+          <input id="question-input" type="text" class="form-control" placeholder="Enter your legal question">
+          <div class="form-group">
+              <label for="formLanguageSelect">Select Language</label>
+              <select class="form-control" id="formLanguageSelect">
+                <option>English</option>
+                <option>French</option>
+                <option>Spanish</option>
+                <option>Arabic</option>
+              </select>
+          </div>
+          <div>
+            <button type="submit" class="btn btn-primary d-block mx-auto">Ask a Question</button>
+          </div>
+        </form>
+        <div class="row justify-content-center">
+          <div class="col-sm-8">
+            <div id="answer" class="my-4"></div>
+          </div>
         </div>
       </div>
     </div>
-    <br>
-    <form action="/">
-      <button type="submit" class="btn btn-primary">Homepage</button>
-    </form>
-    <br>
-    <form action="/signout">
-    <button type="submit" class="btn btn-primary">Sign out</button>
-    </form>
-</div>
+  </div>
 
-<%- include("templates/footer") %>
+  <%- include("templates/footer") %>

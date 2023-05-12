@@ -1,24 +1,28 @@
 <%- include("templates/header") %> 
-<div>
-    <h2>Welcome to the contact page. </h2>
-<br>
-Please use the contact information for any questions you may have.
-<br>
-<br>
-<h3>BC Supreme Court:</h3>
-<br>
-#: 250-426-1234
-<br>
-Email: sc.scheduling_ka@bccourts.ca
-<br>
-<h3>Supreme Court of Canada:</h3>
-<br>
-#: 1-888-551-1185
-<br>
-Email: reception@scc-csc.ca
-<br>
-<form action="/">
-<button type="submit">Return Home</button>
-</form>
+<div class="container my-5">
+    <h2 class="text-center">Welcome to the contact page.</h2>
+    <p class="lead text-center">Please use the contact information for any questions you may have.</p>
+  
+    <div class="row mt-5 justify-content-center">
+      <div class="col-md-6">
+        <h3 class="text-primary">BC Supreme Court:</h3>
+        <p><strong>#:</strong> 250-426-1234</p>
+        <p><strong>Email:</strong> <a href="mailto:sc.scheduling_ka@bccourts.ca" class="text-primary">sc.scheduling_ka@bccourts.ca</a></p>
+      </div>
+  
+      <div class="col-md-6">
+        <h3 class="text-primary">Supreme Court of Canada:</h3>
+        <p><strong>#:</strong> 1-888-551-1185</p>
+        <p><strong>Email:</strong> <a href="mailto:reception@scc-csc.ca" class="text-primary">reception@scc-csc.ca</a></p>
+      </div>
+    </div>
+  
+    <div class="text-center mt-5">
+      <form action="/">
+        <button type="submit" class="btn btn-primary">Return Home</button>
+      </form>
+    </div>
 </div>
+  
+  
 <%- include("templates/footer") %> 

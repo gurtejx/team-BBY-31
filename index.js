@@ -67,6 +67,7 @@ app.get('/', (req, res) => {
 });
 
 function sessionValidation(req, res, next) {
+  console.log(req.session.authenticated);
   if (req.session.authenticated) {
     console.log("Session authorized");
     return next();
@@ -142,8 +143,8 @@ app.post('/loggingin', async (req,res) => {
     return;
   }
 
-  const schema = Joi.string().email().max(50).required();
-  const validationResult = schema.validate(email);
+  const schema = await Joi.string().email().max(50).required();
+  const validationResult = await schema.validate(email);
   if (validationResult.error != null) {
     console.log(validationResult.error);
     res.redirect("/login?invalid=true");
