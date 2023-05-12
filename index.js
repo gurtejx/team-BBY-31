@@ -1,5 +1,5 @@
 require("./utils.js");
-
+const { getResponse } = require("./gpt"); // imported the custom gpt.js as a custom module to be utilized.
 require('dotenv').config();
 const express = require('express'); // imports the express.js module and assigns it to a constant variable named express
 const session = require('express-session'); // imports the sessions library.
@@ -178,9 +178,30 @@ app.post('/loggingin', async (req,res) => {
 });
 
 app.get('/main', sessionValidation, (req, res) => {
-  res.render('main', {name: req.session.name});
+  res.render('main');
 });
- 
+
+app.post('/respond', async (req, res) => {
+  var prompt = req.body.prompt;
+  var language = req.body.language;
+  
+  // role prompt
+  prompt = prompt.concat(`Reply as a lawyer`);
+
+  // translation prompt engineer
+  prompt = prompt.concat(`\nTranslate response to ${language}.`);
+
+  var response = await getResponse(prompt);
+  res.send({ answer: response });
+
+  // Process the question and generate the answer
+  // var answer = generateAnswer(question, language);
+
+  // Send the answer as JSON
+  // res.setHeader('Content-Type', 'application/json');
+  // res.status(200).send(JSON.stringify({answer: question}));
+});
+
 app.get('/fetchProfile', sessionValidation, async (req, res) => {
   try {
     const user = await userCollection.findOne({ email: req.session.email }, { projection: { name: 1, email: 1, profession:1} });
