@@ -178,6 +178,10 @@ app.get('/main', sessionValidation, (req, res) => {
   res.render('main', {name: req.session.name});
 });
  
+// catches the /profile route
+app.get('/profile', (req,res) => {
+  res.render('profile');
+});
 
 // catches the /about route
 app.get('/about', (req,res) => {
