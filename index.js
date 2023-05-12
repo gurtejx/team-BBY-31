@@ -1,5 +1,5 @@
 require("./utils.js");
-
+const { getResponse } = require("./gpt"); // imported the custom gpt.js as a custom module to be utilized.
 require('dotenv').config();
 const express = require('express'); // imports the express.js module and assigns it to a constant variable named express
 const session = require('express-session'); // imports the sessions library.
@@ -67,6 +67,7 @@ app.get('/', (req, res) => {
 });
 
 function sessionValidation(req, res, next) {
+  console.log(req.session.authenticated);
   if (req.session.authenticated) {
     console.log("Session authorized");
     return next();
@@ -86,6 +87,7 @@ app.post("/submitUser", async (req, res) => {
   var username = req.body.username;
   var email = req.body.email;
   var password = req.body.password;
+  var profession = req.body.profession;
 
   // check to see if username or password was blank, redirect to signUp page, with message that fields were blank
   if (email == "" || password == "" || name == "" || username == "") {
@@ -98,9 +100,10 @@ app.post("/submitUser", async (req, res) => {
     username: Joi.string().regex(/^[a-zA-Z0-9 ]+$/).max(20).required(),
     email: Joi.string().email().max(50).required(),
     password: Joi.string().max(20).required(),
+    profession: Joi.string().max(50).required(),
   });
 
-  const validationResult = schema.validate({ name, username, email, password });
+  const validationResult = schema.validate({ name, username, email, profession, password });
 
   if (validationResult.error != null) {
     console.log(validationResult.error);
@@ -137,7 +140,8 @@ app.post("/setSecurityQuestion", async (req, res) => {
     email: email,
     password: hashedPassword,
     question: question,
-    answer: answer
+    answer: answer,
+    profession: profession
   });
 
   console.log("Inserted user with security question");
@@ -177,7 +181,7 @@ app.post('/loggingin', async (req,res) => {
 
   const result = await userCollection.find({
     username: username
-  }).project({name: 1, username: 1, email: 1, password: 1, _id: 1}).toArray();
+  }).project({name: 1, username: 1, email: 1, password: 1, profession: 1, _id: 1}).toArray();
 
   if(result.length != 1) {
     // that means user has not registered probably
@@ -188,7 +192,6 @@ app.post('/loggingin', async (req,res) => {
   // check if password matches for the username found in the database
   if (await bcrypt.compare(password, result[0].password)) {
     req.session.authenticated = true;
-    req.session.email = email;
     req.session.username = username;
     req.session.cookie.maxAge = expireTime;
     req.session.name = result[0].name; 
@@ -200,9 +203,44 @@ app.post('/loggingin', async (req,res) => {
 });
 
 app.get('/main', sessionValidation, (req, res) => {
-  res.render('main', {name: req.session.name});
+  res.render('main');
 });
- 
+
+app.post('/respond', async (req, res) => {
+  var prompt = req.body.prompt;
+  var language = req.body.language;
+  
+  // role prompt
+  prompt = prompt.concat(`Reply as a lawyer`);
+
+  // translation prompt engineer
+  prompt = prompt.concat(`\nTranslate response to ${language}.`);
+
+  var response = await getResponse(prompt);
+  res.send({ answer: response });
+
+  // Process the question and generate the answer
+  // var answer = generateAnswer(question, language);
+
+  // Send the answer as JSON
+  // res.setHeader('Content-Type', 'application/json');
+  // res.status(200).send(JSON.stringify({answer: question}));
+});
+
+app.get('/fetchProfile', sessionValidation, async (req, res) => {
+  try {
+    const user = await userCollection.findOne({ email: req.session.email }, { projection: { name: 1, email: 1, profession:1} });
+    res.json({ user });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// catches the /profile route
+app.get('/profile', (req,res) => {
+  res.render('profile');
+});
 
 // catches the /about route
 app.get('/about', (req,res) => {
