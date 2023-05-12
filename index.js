@@ -84,27 +84,26 @@ app.get('/signUp', (req,res) => {
 // route for 'submitUser'
 app.post("/submitUser", async (req, res) => {
   var name = req.body.name;
+  var username = req.body.username;
   var email = req.body.email;
   var password = req.body.password;
   var profession = req.body.profession;
 
   // check to see if username or password was blank, redirect to signUp page, with message that fields were blank
-  if (email == "" || password == "" || name == "") {
+  if (email == "" || password == "" || name == "" || username == "") {
     res.redirect("/signUp?blank=true");
     return;
   }
 
   const schema = Joi.object({
-    name: Joi.string()
-      .regex(/^[a-zA-Z ]+$/)
-      .max(20)
-      .required(),
+    name: Joi.string().regex(/^[a-zA-Z ]+$/).max(20).required(),
+    username: Joi.string().regex(/^[a-zA-Z0-9 ]+$/).max(20).required(),
     email: Joi.string().email().max(50).required(),
     password: Joi.string().max(20).required(),
     profession: Joi.string().max(50).required(),
   });
 
-  const validationResult = schema.validate({ name, email, password, profession });
+  const validationResult = schema.validate({ name, username, email, profession, password });
 
   if (validationResult.error != null) {
     console.log(validationResult.error);
@@ -112,21 +111,49 @@ app.post("/submitUser", async (req, res) => {
     return;
   }
 
+  // Set session variables
+  req.session.name = name;
+  req.session.username = username;
+  req.session.email = email;
+  req.session.profession = profession;
+  req.session.password = password;
+
+  res.render('securityQuestion', {req});
+});
+
+app.post("/setSecurityQuestion", async (req, res) => {
+  // Get the inputs from the security question form
+  var question = req.body.question;
+  var answer = req.body.answer;
+
+  // Get the inputs from the previous form using session variables
+  var name = req.session.name;
+  var username = req.session.username;
+  var email = req.session.email;
+  var profession = req.session.profession;
+  var password = req.session.password;
+
   var hashedPassword = await bcrypt.hashSync(password, saltRounds);
 
+  // Insert both sets of data into the database
   await userCollection.insertOne({
     name: name,
+    username: username,
     email: email,
     password: hashedPassword,
-    profession: profession,
+    question: question,
+    answer: answer,
+    profession: profession
   });
-  console.log("Inserted user");
 
-  // grant user a session and set it to be valid
+  console.log("Inserted user with security question");
+
+  // Grant user a session and set it to be valid
   req.session.authenticated = true;
-  req.session.email = email;
   req.session.cookie.maxAge = expireTime;
+  req.session.email = email;
   req.session.name = name;
+  req.session.username = username;
 
   res.redirect("/main");
 });
@@ -138,16 +165,16 @@ app.get('/login', (req,res) => {
 
 // route for 'loggingin'
 app.post('/loggingin', async (req,res) => {
-  var email = req.body.email;
+  var username = req.body.username;
   var password = req.body.password;
 
-  if(email == "" || password == "") {
+  if(username == "" || password == "") {
     res.redirect("/login?blank=true");
     return;
   }
 
-  const schema = await Joi.string().email().max(50).required();
-  const validationResult = await schema.validate(email);
+  const schema = Joi.string().regex(/^[a-zA-Z0-9 ]+$/).max(20).required();
+  const validationResult = schema.validate(username);
   if (validationResult.error != null) {
     console.log(validationResult.error);
     res.redirect("/login?invalid=true");
@@ -155,8 +182,8 @@ app.post('/loggingin', async (req,res) => {
   }
 
   const result = await userCollection.find({
-    email: email
-  }).project({name: 1, email: 1, password: 1, _id: 1, profession: 1}).toArray();
+    username: username
+  }).project({name: 1, username: 1, email: 1, password: 1, profession: 1, _id: 1}).toArray();
 
   if(result.length != 1) {
     // that means user has not registered probably
@@ -167,7 +194,7 @@ app.post('/loggingin', async (req,res) => {
   // check if password matches for the username found in the database
   if (await bcrypt.compare(password, result[0].password)) {
     req.session.authenticated = true;
-    req.session.email = email;
+    req.session.username = username;
     req.session.cookie.maxAge = expireTime;
     req.session.name = result[0].name; 
     res.redirect('/main');
@@ -204,7 +231,7 @@ app.post('/respond', async (req, res) => {
 
 app.get('/fetchProfile', sessionValidation, async (req, res) => {
   try {
-    const user = await userCollection.findOne({ email: req.session.email }, { projection: { name: 1, email: 1, profession:1} });
+    const user = await userCollection.findOne({ username: req.session.username }, { projection: { name: 1, username: 1, email: 1, profession:1} });
     res.json({ user });
   } catch (err) {
     console.error(err);
@@ -230,6 +257,106 @@ app.get('/signout', (req, res) => {
   req.session.destroy();
   res.render('signout');
 }); 
+
+app.get('/forgotPassword', (req, res) => {
+  res.render('forgotPassword', {req});
+});
+
+app.post('/resetPassword', async (req,res) => {
+  var username = req.body.username;
+
+  if(username == "" ) {
+    res.redirect("/forgotPassword?blank=true");
+    return;
+  }
+
+  const schema = Joi.string().regex(/^[a-zA-Z0-9 ]+$/).max(20).required();
+  const validationResult = schema.validate(username);
+  if (validationResult.error != null) {
+    console.log(validationResult.error);
+    res.redirect("/forgotPassword?invalid=true");
+    return;
+  }
+
+  const result = await userCollection.find({
+    username: username
+  }).project({name: 1, username: 1, email: 1, password: 1, question: 1, answer: 1, _id: 1}).toArray();
+
+  if(result.length != 1) {
+    // that means user is not registered probably
+    res.redirect("/forgotPassword?incorrect=true");
+    return;
+  }
+
+  req.session.username = username;
+  req.session.question = result[0].question;
+  req.session.answer = result[0].answer; 
+  //res.render("askSecurityQuestion", {req: req});
+  res.redirect("/askSecurityQuestion");
+
+});
+
+app.get('/askSecurityQuestion', (req, res) => {
+  res.render('askSecurityQuestion', {req});
+})
+
+app.post('/verifySecurityQuestion', async (req, res) => {
+  var givenAns = req.body.answer;
+
+  if(givenAns == "" ) {
+    res.redirect("/askSecurityQuestion?blank=true");
+    return;
+  }
+
+  if (givenAns != req.session.answer) {
+    res.redirect("/askSecurityQuestion?incorrect=true");
+    return;
+  }
+
+  //res.render('setNewPassword', {req});
+  res.redirect("/setNewPassword");
+});
+
+app.get('/setNewPassword', (req, res) => {
+  res.render('setNewPassword', {req});
+});
+
+app.post('/updatePassword', async (req, res) => {
+  var newPassword = req.body.password;
+  var confirmPassword = req.body.password2;
+
+  if(newPassword == "" || confirmPassword == "") {
+    res.redirect("/setNewPassword?blank=true");
+    return;
+  }
+
+  const schema = Joi.string().regex(/^[a-zA-Z0-9 ]+$/).max(20).required();
+  const newPasswordValidation = schema.validate(newPassword);
+  const confirmPasswordValidation = schema.validate(confirmPassword);
+  if (newPasswordValidation.error != null || confirmPasswordValidation.error != null) {
+    console.log(newPasswordValidation.error);
+    console.log(confirmPasswordValidation.error);
+    res.redirect("/setNewPassword?invalid=true");
+    return;
+  }
+
+  if (newPassword != confirmPassword) {
+    res.redirect("/setNewPassword?unmatched=true");
+    return;
+  }
+
+  var hashedPassword = await bcrypt.hashSync(newPassword, saltRounds);
+  console.log({username: req.session.username});
+  userCollection.updateOne(
+    { username: req.session.username },
+    { $set: { password: hashedPassword } }
+  );
+
+  //alert('Password updated successfully!');
+  console.log("Password updated successfully!")
+  res.redirect('/login');
+
+})
 
 app.use(express.static(__dirname + "/public"));
 

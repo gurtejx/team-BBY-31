@@ -1,0 +1,22 @@
+<%- include("templates/header") %> 
+<div class="container mx-auto">
+    <h2 class="text-center">Set Security Question</h2>
+    <form action="/setSecurityQuestion" method="post" class="text-center">
+        <div class="form-group">
+            <label for="question">Select a Security Question:</label><br>
+            <select name="question" id="question">
+                <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                <option value="What was your childhood nickname?">What was your childhood nickname?</option>
+                <option value="What is your favorite hobby?">What is your favorite hobby?</option>
+                <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                <option value="What city were you born in?">What city were you born in?</option>
+            </select><br><br>
+            <label for="answer">Enter your Answer:</label><br>
+            <input type="text" id="answer" name="answer" class="m-1"><br>
+        </div>
+        <input type="submit" value="Submit" class="btn btn-primary">
+    </form>
+</div>
+<%- include("templates/footer") %> 
+
+  

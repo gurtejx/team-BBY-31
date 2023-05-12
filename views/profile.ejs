@@ -12,6 +12,9 @@
           <strong class="text-primary">Name:</strong> <span id="name"></span>
         </div>
         <div class="mb-3">
+          <strong class="text-primary">Username:</strong> <span id="username"></span>
+        </div>
+        <div class="mb-3">
           <strong class="text-primary">Email:</strong> <span id="email"></span>
         </div>
         <div class="mb-3">
@@ -27,6 +30,7 @@
           const response = await fetch('/fetchProfile');
           const data = await response.json();
           $('#name').text(data.user.name);
+          $('#username').text(data.user.username);
           $('#email').text(data.user.email);
           $('#profession').text(data.user.profession);
         } catch (err) {

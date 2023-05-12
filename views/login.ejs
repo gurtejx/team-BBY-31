@@ -4,9 +4,11 @@
     <div class="alert alert-primary"  style="padding: 15px; width: 350px; margin: 0 auto;">
         <h2 style=" text-align: center;">Log In</h2>
         <form action='/loggingin' method='post' style="display: flex; flex-direction: column;">
-        <input name='email' type='text' placeholder='Email' class="p-2 mb-2">
+        <input name='username' type='text' placeholder='Username' class="p-2 mb-2">
         <input name='password' type='password' placeholder='Password' class="p-2 mb-2">
-        <button class="btn btn-primary" style=" color: #fff; padding: 10px;" type="submit">Submit</button>
+        <button class="btn btn-primary" style=" color: #fff; padding: 10px;">Submit</button>
+        <br>
+        <a href="/forgotPassword">Forgot username/password ?</a>
         </form>
         
         <!-- if errorVariable = true, display error message -->
@@ -19,10 +21,10 @@
         <% } %>
     
         <% if (req.query.incorrect) { %>
-            <p style="color: red;">Email not in record. Sign up please.</p>
+            <p style="color: red;">Username not in record. Sign up please.</p>
             <button class="btn btn-primary"><a href="/signUp"  style="color: #fff; text-decoration: none;">Sign Up</a></button>
         <% } %>
-    
+
         <% if (req.query.incorrectPass) { %>
             <p style="color: red;">Incorrect password. Please try again.</p>
         <% } %>
