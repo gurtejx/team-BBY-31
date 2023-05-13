@@ -1,5 +1,5 @@
 require("./utils.js");
-
+const { getResponse } = require("./gpt"); // imported the custom gpt.js as a custom module to be utilized.
 require('dotenv').config();
 const express = require('express'); // imports the express.js module and assigns it to a constant variable named express
 const session = require('express-session'); // imports the sessions library.
@@ -27,7 +27,6 @@ const mongodb_user = process.env.MONGODB_USER;
 const mongodb_password = process.env.MONGODB_PASSWORD;
 const mongodb_database = process.env.MONGODB_DATABASE;
 const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
-
 const node_session_secret = process.env.NODE_SESSION_SECRET;
 
 var { database } = include("databaseConnection");
@@ -40,6 +39,8 @@ var mongoStore = MongoStore.create({
     secret: mongodb_session_secret,
   },
 });
+
+app.set('view engine', 'ejs');
 
 app.use(
   session({
@@ -61,102 +62,48 @@ const port = process.env.PORT || 3020;
   In this case, the function sends the string "Hello World!" as the response.
   Response go to the webpage.
 */
-app.get("/", (req, res) => {
-  var header = `(
-    <h1 style="text-align: center; margin-top: 10%; color: red; font-family: 'Comic Sans MS'; margin-top: 10%;">
-      Welcome to my app! This is the homepage
-    </h1>
-  )`;
+app.get('/', (req, res) => {
+  res.render('homepage', {session: req.session});
+});
 
-  var notLoggedIn = (
-    <div style="text-align: center;">
-      <form action="/signUp">
-        <button type="submit">Sign Up</button>
-      </form>
-      <form action="/login">
-        <button type="submit">Login</button>
-      </form>
-    </div>
-  );
-
-  // check if loggedin, and change content based on whether User has a valid session or not
-  if (!req.session.authenticated) {
-    res.send(header + notLoggedIn);
+function sessionValidation(req, res, next) {
+  console.log(req.session.authenticated);
+  if (req.session.authenticated) {
+    console.log("Session authorized");
+    return next();
   } else {
-    var loggedIn = (
-      <div style="text-align: center;">
-        <form action="/members">
-          <button type="submit">Member's Page</button>
-        </form>
-        <form action="/signout">
-          <button type="submit">Sign Out</button>
-        </form>
-      </div>
-    );
-    res.send(header + loggedIn);
+    res.redirect("login?notLoggedIn=true");
   }
+}
+
+// route for sign up
+app.get('/signUp', (req,res) => {
+  res.render('signUp', {req});
 });
 
-app.get("/login", (req, res) => {
-  var html = `
-    <h2 style="width: 400px; margin: 0 auto; margin-top: 5%; margin-bottom: 5%; font-family: 'Comic Sans MS'">Welcome, Here you can log in to the app.</h2>
-    <div style="background-color: rgba(0, 0, 255, 0.2); padding: 20px; width: 400px; margin: 0 auto; border-radius: 10px;">
-      <h2 style="color: #333; text-align: center;">Log In</h2>
-      <form action='/loggingin' method='post' style="display: flex; flex-direction: column;">
-      <input name='email' type='text' placeholder='Email' style="padding: 10px; margin-bottom: 10px; border: none; border-radius: 5px;">
-      <input name='password' type='password' placeholder='Password' style="padding: 10px; margin-bottom: 10px; border: none; border-radius: 5px;">
-      <button style="background-color: #007bff; color: #fff; padding: 10px; border: none; border-radius: 5px;">Submit</button>
-      </form>
-      ${
-        req.query.incorrect === "true"
-          ? '<p style="color: red;">Email not in record. Sign up please.</p>'
-          : ""
-      }
-      ${
-        req.query.incorrectPass === "true"
-          ? '<p style="color: red;">Incorrect password. Please try again.</p>'
-          : ""
-      }
-      ${
-        req.query.blank === "true"
-          ? '<p style="color: red;">Email/Password cannot be blank. Please try again.</p>'
-          : ""
-      }
-      ${
-        req.query.invalid === "true"
-          ? '<p style="color: red;">Invalid format. Please try again.</p>'
-          : ""
-      }
-      ${
-        req.query.notLoggedIn === "true"
-          ? '<p style="color: red;">Login to access Member\'s Page.</p>'
-          : ""
-      }
-    </div>`;
-  res.send(html);
-});
-
+// route for 'submitUser'
 app.post("/submitUser", async (req, res) => {
   var name = req.body.name;
+  var username = req.body.username;
   var email = req.body.email;
   var password = req.body.password;
+  var profession = req.body.profession;
 
   // check to see if username or password was blank, redirect to signUp page, with message that fields were blank
-  if (email == "" || password == "" || name == "") {
+  if (email == "" || password == "" || name == "" || username == "") {
     res.redirect("/signUp?blank=true");
     return;
   }
 
   const schema = Joi.object({
-    name: Joi.string()
-      .regex(/^[a-zA-Z ]+$/)
-      .max(20)
-      .required(),
+    name: Joi.string().regex(/^[a-zA-Z ]+$/).max(20).required(),
+    username: Joi.string().regex(/^[a-zA-Z0-9 ]+$/).max(20).required(),
     email: Joi.string().email().max(50).required(),
     password: Joi.string().max(20).required(),
+    profession: Joi.string().max(50).required(),
   });
 
-  const validationResult = schema.validate({ name, email, password });
+  const validationResult = schema.validate({ name, username, email, profession, password });
 
   if (validationResult.error != null) {
     console.log(validationResult.error);
@@ -164,90 +111,71 @@ app.post("/submitUser", async (req, res) => {
     return;
   }
 
-  var hashedPassword = await bcrypt.hashSync(password, saltRounds);
+  // Set session variables
+  req.session.name = name;
+  req.session.username = username;
+  req.session.email = email;
+  req.session.profession = profession;
+  req.session.password = password;
 
+  res.render('securityQuestion', {req});
+});
+
+app.post("/setSecurityQuestion", async (req, res) => {
+  // Get the inputs from the security question form
+  var question = req.body.question;
+  var answer = req.body.answer;
+
+  // Get the inputs from the previous form using session variables
+  var name = req.session.name;
+  var username = req.session.username;
+  var email = req.session.email;
+  var profession = req.session.profession;
+  var password = req.session.password;
+
+  var hashedPassword = await bcrypt.hashSync(password, saltRounds);
+  var hashedAnswer = await bcrypt.hashSync(answer, saltRounds);
+
+  // Insert both sets of data into the database
   await userCollection.insertOne({
     name: name,
+    username: username,
     email: email,
     password: hashedPassword,
+    question: question,
+    answer: hashedAnswer,
+    profession: profession
   });
-  console.log("Inserted user");
 
-  // grant user a session and set it to be valid
+  console.log("Inserted user with security question");
+
+  // Grant user a session and set it to be valid
   req.session.authenticated = true;
-  req.session.email = email;
   req.session.cookie.maxAge = expireTime;
+  req.session.email = email;
   req.session.name = name;
+  req.session.username = username;
 
-  res.redirect("/members");
+  res.redirect("/main");
 });
 
-app.get("/signUp", (req, res) => {
-  var html = `
-    <h2 style="width: 400px; margin: 0 auto; margin-top: 5%; margin-bottom: 5%; font-family: 'Comic Sans MS'">Welcome, register as new user here</h2>
-    <div style="background-color: rgba(0, 0, 255, 0.2); padding: 20px; width: 400px; margin: 0 auto; border-radius: 10px;">
-      <h2 style="color: #333; text-align: center;">Sign Up</h2>
-      <form action='/submitUser' method='post' style="display: flex; flex-direction: column;">
-      <input name='name' type='text' placeholder='Name' style="padding: 10px; margin-bottom: 10px; border: none; border-radius: 5px;">
-      <input name='email' type='text' placeholder='Email' style="padding: 10px; margin-bottom: 10px; border: none; border-radius: 5px;">
-      <input name='password' type='password' placeholder='Password' style="padding: 10px; margin-bottom: 10px; border: none; border-radius: 5px;">
-      <button style="background-color: #007bff; color: #fff; padding: 10px; border: none; border-radius: 5px;">Submit</button>
-      </form>
-      ${
-        req.query.blank === "true"
-          ? '<p style="color: red;">Fields cannot be blank. Please try again.</p>'
-          : ""
-      }
-      ${
-        req.query.invalid === "true"
-          ? '<p style="color: red;">Invalid Format. Please try again.</p>'
-          : ""
-      }
-    </div>
-    `;
-  res.send(html);
+// route for login page
+app.get('/login', (req,res) => {
+  res.render('login', {req});
 });
 
-app.get('/members', (req, res) => {
-  if (!req.session.authenticated) {
-    res.redirect('/login?notLoggedIn=true');
-    return;
-  }
-
-  // Generate a random number between 1 and 3
-  const randomNum = Math.floor(Math.random() * 3) + 1;
-
-  // Construct the path to the random cat image using string concatenation
-  const imagePath = '/cat' + randomNum + '.gif';
-
-  var html = `
-  <div style="text-align: center; color: red; font-family: 'Comic Sans MS'; margin-top: 5%;">
-    <h1>Welcome, ${req.session.name} !<br>This is the member's page</h1>
-    <div style='text-align:center;'><img src=${imagePath} style='width:250px; border: 1px solid black;'></div>
-    <div style="margin-top: 2%;">
-      <form action="/">
-      <button type="submit">Homepage</button>
-      </form>
-      <form action="/signout">
-      <button type="submit">Sign out</button>
-      </form>
-    </div>
-  </div>
-  `;
-  res.send(html);
-});
-
+// route for 'loggingin'
 app.post('/loggingin', async (req,res) => {
-  var email = req.body.email;
+  var username = req.body.username;
   var password = req.body.password;
 
-  if(email == "" || password == "") {
+  if(username == "" || password == "") {
     res.redirect("/login?blank=true");
     return;
   }
 
-  const schema = Joi.string().email().max(50).required();
-  const validationResult = schema.validate(email);
+  const schema = Joi.string().regex(/^[a-zA-Z0-9 ]+$/).max(20).required();
+  const validationResult = schema.validate(username);
   if (validationResult.error != null) {
     console.log(validationResult.error);
     res.redirect("/login?invalid=true");
@@ -255,12 +183,10 @@ app.post('/loggingin', async (req,res) => {
   }
 
   const result = await userCollection.find({
-    email: email
-  }).project({name: 1, email: 1, password: 1, _id: 1}).toArray();
-  console.log(result);
+    username: username
+  }).project({name: 1, username: 1, email: 1, password: 1, profession: 1, _id: 1}).toArray();
 
   if(result.length != 1) {
-    console.log("user not found");
     // that means user has not registered probably
     res.redirect("/login?incorrect=true");
     return;
@@ -268,68 +194,184 @@ app.post('/loggingin', async (req,res) => {
 
   // check if password matches for the username found in the database
   if (await bcrypt.compare(password, result[0].password)) {
-    console.log("correct password");
     req.session.authenticated = true;
-    req.session.email = email;
+    req.session.username = username;
     req.session.cookie.maxAge = expireTime;
-    // console.log(result[0].name);
     req.session.name = result[0].name; 
-    res.redirect('/members');
+    res.redirect('/main');
   } else {
     //user and password combination not found
     res.redirect("/login?incorrectPass=true");
   }
 });
 
+app.get('/main', sessionValidation, (req, res) => {
+  res.render('main');
+});
+
+app.post('/respond', async (req, res) => {
+  var prompt = req.body.prompt;
+  var language = req.body.language;
+  
+  // role prompt
+  prompt = prompt.concat(`Reply as a lawyer`);
+
+  // translation prompt engineer
+  prompt = prompt.concat(`\nTranslate response to ${language}.`);
+
+  var response = await getResponse(prompt);
+  res.send({ answer: response });
+
+  // Process the question and generate the answer
+  // var answer = generateAnswer(question, language);
+
+  // Send the answer as JSON
+  // res.setHeader('Content-Type', 'application/json');
+  // res.status(200).send(JSON.stringify({answer: question}));
+});
+
+app.get('/fetchProfile', sessionValidation, async (req, res) => {
+  try {
+    const user = await userCollection.findOne({ username: req.session.username }, { projection: { name: 1, username: 1, email: 1, profession:1} });
+    res.json({ user });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// catches the /profile route
+app.get('/profile', (req,res) => {
+  res.render('profile');
+});
+
 // catches the /about route
 app.get('/about', (req,res) => {
-  var color = req.query.color;
-  res.send(`<h1 style="color:${color}; text-align: center; margin-top: 10%; font-family: 'Comic Sans MS';">Made by<br>Abhishek Chouhan</h1>`);
+  res.render('about');
 });
 
-//show cat images
-app.get('/cat/:id', (req,res) => {
-
-  var cat = req.params.id;
-
-  if (cat == 1) {
-    res.send("<div style='text-align:center; margin-top: 10%;'>Fluffy:<br><img src='/fluffy.gif' style='width:250px; border: 1px solid black;'></div>");
-      // res.send("Fluffy: <img src='/fluffy.gif' style='width:250px;'>");
-  }
-  else if (cat == 2) {
-    res.send("<div style='text-align:center; margin-top: 10%;'>Socks:<br><img src='/socks.gif' style='width:250px; border: 1px solid black;'></div>");
-    // res.send("Socks: <img src='/socks.gif' style='width:250px;'>");
-  }
-  else {
-    // res.send("Invalid cat id: "+cat);
-    res.send("<div style='text-align:center; background-color: #ffcccc; padding: 10px; border-radius: 5px;'>Invalid cat id: " + cat + "</div>");
-  }
-});
+app.get('/contact', (req, res) => {
+res.render('contact');
+}); 
 
 app.get('/signout', (req, res) => {
   req.session.destroy();
-    var html = `
-    <h1 style="text-align: center; margin-top: 10%; color: red; font-family: 'Comic Sans MS'; margin-top: 10%;">You are logged out!</h1>
-    <div style="text-align: center;">
-      <form action="/">
-        <button type="submit">Homepage</button>
-      </form>
-    </div>
-    `;
-  res.send(html);
+  res.render('signout');
 }); 
+
+app.get('/forgotPassword', (req, res) => {
+  res.render('forgotPassword', {req});
+});
+
+app.post('/resetPassword', async (req,res) => {
+  var username = req.body.username;
+
+  if(username == "" ) {
+    res.redirect("/forgotPassword?blank=true");
+    return;
+  }
+
+  const schema = Joi.string().regex(/^[a-zA-Z0-9 ]+$/).max(20).required();
+  const validationResult = schema.validate(username);
+  if (validationResult.error != null) {
+    console.log(validationResult.error);
+    res.redirect("/forgotPassword?invalid=true");
+    return;
+  }
+
+  const result = await userCollection.find({
+    username: username
+  }).project({name: 1, username: 1, email: 1, password: 1, question: 1, answer: 1, _id: 1}).toArray();
+
+  if(result.length != 1) {
+    // that means user is not registered probably
+    res.redirect("/forgotPassword?incorrect=true");
+    return;
+  }
+
+  req.session.username = username;
+  req.session.question = result[0].question;
+  req.session.answer = result[0].answer; 
+  //res.render("askSecurityQuestion", {req: req});
+  res.redirect("/askSecurityQuestion");
+
+});
+
+app.get('/askSecurityQuestion', (req, res) => {
+  res.render('askSecurityQuestion', {req});
+})
+
+app.post('/verifySecurityQuestion', async (req, res) => {
+  var givenAns = req.body.answer;
+
+  if(givenAns == "" ) {
+    res.redirect("/askSecurityQuestion?blank=true");
+    return;
+  }
+
+  // if (givenAns != req.session.answer) {
+  //   res.redirect("/askSecurityQuestion?incorrect=true");
+  //   return;
+  // }
+
+  if (await bcrypt.compare(givenAns, req.session.answer)) {
+    //res.render('setNewPassword', {req});
+    res.redirect("/setNewPassword");
+  }
+  else {
+    res.redirect("/askSecurityQuestion?incorrect=true");
+    return;
+  }
+  
+});
+
+app.get('/setNewPassword', (req, res) => {
+  res.render('setNewPassword', {req});
+});
+
+app.post('/updatePassword', async (req, res) => {
+  var newPassword = req.body.password;
+  var confirmPassword = req.body.password2;
+
+  if(newPassword == "" || confirmPassword == "") {
+    res.redirect("/setNewPassword?blank=true");
+    return;
+  }
+
+  const schema = Joi.string().regex(/^[a-zA-Z0-9 ]+$/).max(20).required();
+  const newPasswordValidation = schema.validate(newPassword);
+  const confirmPasswordValidation = schema.validate(confirmPassword);
+  if (newPasswordValidation.error != null || confirmPasswordValidation.error != null) {
+    console.log(newPasswordValidation.error);
+    console.log(confirmPasswordValidation.error);
+    res.redirect("/setNewPassword?invalid=true");
+    return;
+  }
+
+  if (newPassword != confirmPassword) {
+    res.redirect("/setNewPassword?unmatched=true");
+    return;
+  }
+
+  var hashedPassword = await bcrypt.hashSync(newPassword, saltRounds);
+  console.log({username: req.session.username});
+  userCollection.updateOne(
+    { username: req.session.username },
+    { $set: { password: hashedPassword } }
+  );
+
+  //alert('Password updated successfully!');
+  console.log("Password updated successfully!")
+  res.redirect('/login');
+
+})
 
 app.use(express.static(__dirname + "/public"));
 
-// redirect all other mistakes by user (pages that do not exist) to a meaningful warning
+// 404 error
 app.get("*", (req,res) => {
 	res.status(404);
-	res.send(`
-    <div style="text-align: center; margin-top: 10%; color: red; font-family: 'Comic Sans MS'; margin-top: 10%;">
-      <h1>Sorry, This page does not exist - 404</h1>
-      <h3>You might want to check your URL ^_^</h3>
-    </div>
-  `);
+  res.render('404');
 });
 
 /*
