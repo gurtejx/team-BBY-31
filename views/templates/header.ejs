@@ -17,10 +17,24 @@
         .navbar-nav {
             flex-direction: row;
         }
+
         .nav-item {
             margin-right: 8px;
         }
+
+        /* New CSS class for sticky header */
+        .sticky-top {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
     </style>
+    <script>
+        // JavaScript code to add sticky behavior to the header
+        $(document).ready(function () {
+            $('.navbar').addClass('sticky-top');
+        });
+    </script>
 </head>
 
 <body>
