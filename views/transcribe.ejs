@@ -1,0 +1,27 @@
+<%- include("templates/header") %>
+<div class="container">
+    <h1 class="my-4">Transcribe your Document</h1>
+
+    <form>
+        <!-- File Upload -->
+        <div class="form-group">
+            <label for="fileUpload">Upload PDF Document:</label>
+            <input type="file" class="form-control-file" id="fileUpload" accept=".pdf">
+        </div>
+
+        <!-- Question -->
+        <div class="form-group">
+            <label for="questionInput">What is your question?:</label>
+            <textarea class="form-control" id="questionInput" rows="3"></textarea>
+        </div>
+
+        <!-- Answer -->
+        <div class="form-group">
+            <label for="answerInput">Response:</label>
+            <textarea class="form-control" id="answerInput" rows="3"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+<%- include("templates/footer") %>
