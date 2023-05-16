@@ -263,6 +263,10 @@ app.get('/forgotPassword', (req, res) => {
   res.render('forgotPassword', {req});
 });
 
+app.get('/forgotUsername', (req, res) => {
+  res.render('forgotUsername', {req});
+});
+
 app.post('/resetPassword', async (req,res) => {
   var username = req.body.username;
 
@@ -365,6 +369,35 @@ app.post('/updatePassword', async (req, res) => {
   res.redirect('/login');
 
 })
+
+app.post('/sendResetEmail', async (req, res) => {
+  var email = req.body.email;
+
+  if(email == "") {
+    res.redirect("/forgotUsername?blank=true");
+    return;
+  }
+
+  const schema = Joi.string().email().max(50).required();
+  const validationResult = schema.validate(email);
+  if (validationResult.error != null) {
+    console.log(validationResult.error);
+    res.redirect("/forgotUsername?invalid=true");
+    return;
+  }
+
+  const result = await userCollection.find({
+    email: email
+  }).project({name: 1, username: 1, email: 1, password: 1, profession: 1, _id: 1}).toArray();
+
+  if(result.length != 1) {
+    // that means user has not registered probably
+    res.redirect("/forgotUsername?incorrect=true");
+    return;
+  }
+
+  // User's account found in DB, send password reset email
+});
 
 app.use(express.static(__dirname + "/public"));
 
