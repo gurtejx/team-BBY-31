@@ -7,6 +7,10 @@ const MongoStore = require('connect-mongo');
 const Joi = require("joi"); // input field validation library
 const bcrypt = require('bcrypt');
 const saltRounds = 12;
+const notifier = require('node-notifier');
+const nodemailer = require('nodemailer');
+const Mailgen = require('mailgen');
+const Mail = require("nodemailer/lib/mailer/index.js");
 
 /*
   creates an instance of the Express application by calling the express function.
@@ -28,6 +32,10 @@ const mongodb_password = process.env.MONGODB_PASSWORD;
 const mongodb_database = process.env.MONGODB_DATABASE;
 const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
 const node_session_secret = process.env.NODE_SESSION_SECRET;
+const email_service_provider = process.env.EMAIL_SERVICE_PROVIDER;
+const app_email = process.env.APP_EMAIL;
+const app_email_password = process.env.APP_EMAIL_PASSWORD;
+
 
 var { database } = include("databaseConnection");
 
@@ -371,15 +379,15 @@ app.post('/updatePassword', async (req, res) => {
 })
 
 app.post('/sendResetEmail', async (req, res) => {
-  var email = req.body.email;
+  var userEmail = req.body.email;
 
-  if(email == "") {
+  if(userEmail == "") {
     res.redirect("/forgotUsername?blank=true");
     return;
   }
 
   const schema = Joi.string().email().max(50).required();
-  const validationResult = schema.validate(email);
+  const validationResult = schema.validate(userEmail);
   if (validationResult.error != null) {
     console.log(validationResult.error);
     res.redirect("/forgotUsername?invalid=true");
@@ -387,7 +395,7 @@ app.post('/sendResetEmail', async (req, res) => {
   }
 
   const result = await userCollection.find({
-    email: email
+    email: userEmail
   }).project({name: 1, username: 1, email: 1, password: 1, profession: 1, _id: 1}).toArray();
 
   if(result.length != 1) {
@@ -396,7 +404,80 @@ app.post('/sendResetEmail', async (req, res) => {
     return;
   }
 
+  var name = result[0].name;
+  var username = result[0].username;
+
   // User's account found in DB, send password reset email
+  // Create a Nodemailer transporter
+  const config = {
+    service: 'gmail',
+    auth: {
+      user: `${app_email}`,
+      pass: `${app_email_password}`
+    },
+  };
+  let transporter = nodemailer.createTransport(config);
+
+  let Mailgenerator = new Mailgen({
+    theme: "default",
+    product: {
+      name: "Mailgen",
+      link: 'https://mailgen.js/'
+    }
+  });
+
+  let response = {
+    header: {
+      // title: 'LegallyWise AI',
+      logo: 'https://example.com/path/to/your/icon.png'
+    },
+    body: {
+      name: name,
+      intro: `Voila! Your username is ${username}.`,
+      action: {
+        instructions: 'To reset your password, click the button below:',
+        button: {
+          text: 'Reset Password',
+          link: 'https://example.com'
+        }
+      },
+      outro: `If you have any questions, feel free to contact us at ${app_email}.`,
+      footer: {
+        greeting: 'Yours truly,',
+        name: 'LegallyWise AI',
+      }
+  }};
+
+  let emailToBeSent = Mailgenerator.generate(response);
+
+  // Define the email options
+  let mailOptions = {
+    // from: `${app_email}`,
+    from: 'legallywise.bby31@gmail.com',
+    to: userEmail,
+    subject: 'Reset Your Password',
+    html: emailToBeSent
+  };
+
+  // Send the email
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      // Display a notification alert
+      notifier.notify({
+        title: 'Alert',
+        message: 'Failed to send email: ' + error,
+        });
+        console.log(error);
+    } else {
+      // Display a notification alert
+      notifier.notify({
+      title: 'Alert',
+      message: 'Email sent: ' + info.response,
+      });
+      console.log('Email sent: ' + info.response);
+    }
+  });
+  return;
 });
 
 app.use(express.static(__dirname + "/public"));
