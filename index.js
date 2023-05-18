@@ -212,12 +212,15 @@ app.get('/main', sessionValidation, (req, res) => {
 app.post('/respond', async (req, res) => {
   var prompt = req.body.prompt;
   var language = req.body.language;
+
+  var role = `Reply as a lawyer`;
   
   // role prompt
-  prompt = prompt.concat(`Reply as a lawyer`);
+  prompt = prompt.concat(role);
 
   // translation prompt engineer
   prompt = prompt.concat(`\nTranslate response to ${language}.`);
+  prompt = prompt.concat('Generate complete response, and don\'t cut off due to token length');
 
   var response = await getResponse(prompt);
   res.send({ answer: response });
