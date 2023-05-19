@@ -363,15 +363,29 @@ app.post('/updatePassword', async (req, res) => {
 
   var hashedPassword = await bcrypt.hashSync(newPassword, saltRounds);
   console.log({username: req.session.username});
-  userCollection.updateOne(
-    { username: req.session.username },
-    { $set: { password: hashedPassword } }
-  );
+  try {
+    userCollection.updateOne(
+      { username: req.session.username },
+      { $set: { password: hashedPassword } }
+    );
+  } catch (error) {
+    // Display a notification alert
+    notifier.notify({
+      title: 'Alert',
+      message: 'Failed to update password: ' + error,
+    });
+    console.log(error);
+    res.redirect('/updatePassword');
+    return;
+  }
 
-  //alert('Password updated successfully!');
+  // Display a notification alert
+  notifier.notify({
+    title: 'Alert',
+    message: 'Password changed successfully!'
+  });
   console.log("Password updated successfully!")
   res.redirect('/login');
-
 })
 
 app.post('/sendResetEmail', async (req, res) => {
