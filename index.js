@@ -10,7 +10,14 @@ const saltRounds = 12;
 const notifier = require('node-notifier');
 const nodemailer = require('nodemailer');
 const Mailgen = require('mailgen');
-const Mail = require("nodemailer/lib/mailer/index.js");
+const fs = require('fs');
+const jwt = require('jsonwebtoken');
+
+// Read the logo image file
+const logoPath = abs_path('/public/img/logo.png');
+const logoData = fs.readFileSync(logoPath);
+const logoBase64 = logoData.toString('base64');
+const logoDataUri = `data:image/png;base64,${logoBase64}`;
 
 /*
   creates an instance of the Express application by calling the express function.
@@ -35,6 +42,7 @@ const node_session_secret = process.env.NODE_SESSION_SECRET;
 const email_service_provider = process.env.EMAIL_SERVICE_PROVIDER;
 const app_email = process.env.APP_EMAIL;
 const app_email_password = process.env.APP_EMAIL_PASSWORD;
+const jwt_token = process.env.JWT_TOKEN;
 
 
 var { database } = include("databaseConnection");
@@ -321,11 +329,6 @@ app.post('/verifySecurityQuestion', async (req, res) => {
     return;
   }
 
-  // if (givenAns != req.session.answer) {
-  //   res.redirect("/askSecurityQuestion?incorrect=true");
-  //   return;
-  // }
-
   if (await bcrypt.compare(givenAns, req.session.answer)) {
     //res.render('setNewPassword', {req});
     res.redirect("/setNewPassword");
@@ -406,11 +409,29 @@ app.post('/sendResetEmail', async (req, res) => {
 
   var name = result[0].name;
   var username = result[0].username;
+  var id = result[0]._id;
+  req.session.password = result[0].password;
+  req.session.id = id;
+  req.session.email = userEmail;
+  console.log({id: id});
+  console.log({result: result[0]});
+
+  /* Functionality to create a one-time usable link*/
+
+  const secret = jwt_token + result[0].password;
+  const payload = {
+    email: userEmail,
+    id: id
+  }
+  const token = jwt.sign(payload, secret, {expiresIn: '15m'});
+  const link = `http://localhost:3020/setNewPassword/${id}/${token}`;
+
+  /* Link section ends here */
 
   // User's account found in DB, send password reset email
   // Create a Nodemailer transporter
   const config = {
-    service: 'gmail',
+    service: `${email_service_provider}`,
     auth: {
       user: `${app_email}`,
       pass: `${app_email_password}`
@@ -427,9 +448,10 @@ app.post('/sendResetEmail', async (req, res) => {
   });
 
   let response = {
+    req: req,
     header: {
-      // title: 'LegallyWise AI',
-      logo: 'https://example.com/path/to/your/icon.png'
+      title: 'LegallyWise AI',
+      logo: logoDataUri
     },
     body: {
       name: name,
@@ -438,7 +460,7 @@ app.post('/sendResetEmail', async (req, res) => {
         instructions: 'To reset your password, click the button below:',
         button: {
           text: 'Reset Password',
-          link: 'https://example.com'
+          link: link
         }
       },
       outro: `If you have any questions, feel free to contact us at ${app_email}.`,
@@ -452,8 +474,7 @@ app.post('/sendResetEmail', async (req, res) => {
 
   // Define the email options
   let mailOptions = {
-    // from: `${app_email}`,
-    from: 'legallywise.bby31@gmail.com',
+    from: `${app_email}`,
     to: userEmail,
     subject: 'Reset Your Password',
     html: emailToBeSent
@@ -478,6 +499,32 @@ app.post('/sendResetEmail', async (req, res) => {
     }
   });
   return;
+});
+
+app.get('/setNewPassword/:id/:token', async (req, res) => {
+  
+  // check if user id exists in DB
+  console.log(req.session.email);
+  console.log({id_2nd_print: req.session.id});
+  const result = await userCollection.find({
+    email: req.session.email
+  }).project({name: 1, username: 1, email: 1, password: 1, profession: 1, _id: 1}).toArray();
+
+  console.log({result_length: result.length});
+  if(result.length != 1) {
+    // that means user has not registered probably
+    res.redirect("/forgotUsername?incorrect2=true");
+    return;
+  }
+
+  const secret = jwt_token + req.session.password;
+  try {
+    const payload = jwt.verify(token, secret);
+    res.render('setNewPassword', req);
+  } catch (error) {
+    console.log(error);
+    res.redirect('/pageDoesNotExist');
+  }
 });
 
 app.use(express.static(__dirname + "/public"));
