@@ -1,15 +1,44 @@
-<%- include("templates/header") %>
 
-<h1 style="text-align: center; margin-top: 10%;" class="alert alert-primary">Welcome to LegallyWise!</h1>
+<%- include("templates/header") %>
+<style>
+  body {
+    background-color: #191923;
+    color: white;
+  }
+
+  h1 {
+    margin-top: 5%;
+    padding-bottom: 50px;
+    text-align: center;
+    color: #fbfef9; /* Change the color of the heading */
+  }
+
+  .center {
+    text-align: center;
+    margin-top: 30px; /* Adjust the margin as needed */
+  }
+
+  .btn {
+    background-color: #a31621;
+    border-color: #a31621;
+    color: #fbfef9;
+    font-weight: bold;
+  }
+
+</style>
+
+<h1>Welcome to LegallyWise!</h1>
+
+<!-- <h1 style="text-align: center; margin-top: 10%;" class="alert alert-primary">Welcome to LegallyWise!</h1> -->
 
 <% if (!session.authenticated) { %>
   <div style="text-align: center;">
     <form action="/signUp">
-      <button type="submit" class="btn btn-primary">Sign Up</button>
+      <button type="submit" class="btn">Sign Up</button>
     </form>
     <br>
     <form action="/login">
-      <button type="submit" class="btn btn-primary" style="border-color: black;">Login</button>
+      <button type="submit" class="btn">Login</button>
     </form>
   </div>
 <% } else { %>
@@ -19,7 +48,7 @@
     </form>
     <br>
     <form action="/signout">
-      <button type="submit" class="btn btn-secondary">Sign Out</button>
+      <button type="submit" class="btn" >Sign Out</button>
     </form>
   </div>
 <% } %>
