@@ -10,14 +10,7 @@ const saltRounds = 12;
 const notifier = require('node-notifier');
 const nodemailer = require('nodemailer');
 const Mailgen = require('mailgen');
-const fs = require('fs');
 const jwt = require('jsonwebtoken');
-
-// Read the logo image file
-const logoPath = abs_path('/public/img/logo.png');
-const logoData = fs.readFileSync(logoPath);
-const logoBase64 = logoData.toString('base64');
-const logoDataUri = `data:image/png;base64,${logoBase64}`;
 
 /*
   creates an instance of the Express application by calling the express function.
@@ -413,8 +406,6 @@ app.post('/sendResetEmail', async (req, res) => {
   req.session.password = result[0].password;
   req.session.id = id;
   req.session.email = userEmail;
-  console.log({id: id});
-  console.log({result: result[0]});
 
   /* Functionality to create a one-time usable link*/
 
@@ -449,10 +440,6 @@ app.post('/sendResetEmail', async (req, res) => {
 
   let response = {
     req: req,
-    header: {
-      title: 'LegallyWise AI',
-      logo: logoDataUri
-    },
     body: {
       name: name,
       intro: `Voila! Your username is ${username}.`,
@@ -463,11 +450,15 @@ app.post('/sendResetEmail', async (req, res) => {
           link: link
         }
       },
-      outro: `If you have any questions, feel free to contact us at ${app_email}.`,
-      footer: {
-        greeting: 'Yours truly,',
-        name: 'LegallyWise AI',
-      }
+    outro: `If you have any questions, feel free to contact us at ${app_email}.`,
+    // header: {
+    //   title: 'LegallyWise AI',
+    //   logo: logoDataUri
+    // },
+    // footer: {
+    //   greeting: 'Yours truly,',
+    //   name: 'LegallyWise AI',
+    // },
   }};
 
   let emailToBeSent = Mailgenerator.generate(response);
@@ -489,6 +480,7 @@ app.post('/sendResetEmail', async (req, res) => {
         message: 'Failed to send email: ' + error,
         });
         console.log(error);
+        res.redirect('/');
     } else {
       // Display a notification alert
       notifier.notify({
@@ -496,6 +488,7 @@ app.post('/sendResetEmail', async (req, res) => {
       message: 'Email sent: ' + info.response,
       });
       console.log('Email sent: ' + info.response);
+      res.redirect('/');
     }
   });
   return;
@@ -503,24 +496,28 @@ app.post('/sendResetEmail', async (req, res) => {
 
 app.get('/setNewPassword/:id/:token', async (req, res) => {
   
+  var ObjectId = require('mongodb').ObjectId;
+  var id = req.params.id;
+  var o_id = new ObjectId(id);
+
+  console.log({id: id});
   // check if user id exists in DB
-  console.log(req.session.email);
-  console.log({id_2nd_print: req.session.id});
   const result = await userCollection.find({
-    email: req.session.email
+    _id: o_id 
   }).project({name: 1, username: 1, email: 1, password: 1, profession: 1, _id: 1}).toArray();
 
-  console.log({result_length: result.length});
+  console.log({result: result[0]});
   if(result.length != 1) {
     // that means user has not registered probably
-    res.redirect("/forgotUsername?incorrect2=true");
+    res.redirect("/forgotUsername?incorrect=true");
     return;
   }
 
-  const secret = jwt_token + req.session.password;
+  const secret = jwt_token + result[0].password;
   try {
-    const payload = jwt.verify(token, secret);
-    res.render('setNewPassword', req);
+    const payload = jwt.verify(req.params.token, secret);
+    req.session.username = result[0].username;
+    res.render('setNewPassword', {req});
   } catch (error) {
     console.log(error);
     res.redirect('/pageDoesNotExist');
@@ -535,10 +532,8 @@ app.get("*", (req,res) => {
   res.render('404');
 });
 
-/*
-  starts the application listening on the specified port ('port') and logs a message to the console
-  indicating which port the application is listening on.
-*/
+/* Starts the application listening on the specified port ('port') and logs a message to the console
+  indicating which port the application is listening on. */
 app.listen(port, () => {
     console.log(`Node application listening on port: ${port}`);
 });
