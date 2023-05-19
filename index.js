@@ -133,10 +133,19 @@ app.post("/submitUser", async (req, res) => {
   res.render('securityQuestion', {req});
 });
 
+app.get('/setSecurityQuestion', (req, res) => {
+  res.render('securityQuestion', {req});
+});
+
 app.post("/setSecurityQuestion", async (req, res) => {
   // Get the inputs from the security question form
   var question = req.body.question;
   var answer = req.body.answer;
+
+  if (answer == "" ) {
+    res.redirect("/setSecurityQuestion?blank=true");
+    return;
+  }
 
   // Get the inputs from the previous form using session variables
   var name = req.session.name;

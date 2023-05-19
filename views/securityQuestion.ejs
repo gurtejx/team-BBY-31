@@ -16,6 +16,11 @@
         </div>
         <input type="submit" value="Submit" class="btn btn-primary">
     </form>
+
+    <!-- if errorVariable = true, display error message -->
+    <% if (req.query.blank) { %>
+        <p style="color: red;">Answer cannot be blank. Please try again.</p>
+    <% } %>
 </div>
 <%- include("templates/footer") %> 
 
