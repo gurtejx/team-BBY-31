@@ -6,6 +6,7 @@ const session = require('express-session'); // imports the sessions library.
 const MongoStore = require('connect-mongo');
 const Joi = require("joi"); // input field validation library
 const bcrypt = require('bcrypt');
+const fetch = require('node-fetch');  // library to make request and fetch response from python backend
 const saltRounds = 12;
 
 /*
