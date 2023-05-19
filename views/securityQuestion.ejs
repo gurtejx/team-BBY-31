@@ -1,5 +1,6 @@
 <%- include("templates/header") %> 
-<div class="container mx-auto">
+<body style="background-color: #191923;">
+<div class="container mx-auto" style="color: #fbfef9;">
     <h2 class="text-center">Set Security Question</h2>
     <form action="/setSecurityQuestion" method="post" class="text-center">
         <div class="form-group">
@@ -14,9 +15,10 @@
             <label for="answer">Enter your Answer:</label><br>
             <input type="text" id="answer" name="answer" class="m-1"><br>
         </div>
-        <input type="submit" value="Submit" class="btn btn-primary">
+        <input type="submit" value="Submit" class="btn" style="background-color: #a31621; color: #fbfef9;">
     </form>
 </div>
+</body>
 <%- include("templates/footer") %> 
 
   
