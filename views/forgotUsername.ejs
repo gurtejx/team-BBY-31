@@ -1,0 +1,28 @@
+<%- include("templates/header") %>
+<div class="alert alert-primary mt-3"  style="padding: 15px; width: 400px; margin: 0 auto;">
+    <h5 style=" text-align: center;">Enter the email address associated with your account: </h5>
+    <br>
+    <form action='/sendResetEmail' method='post' style="display: flex; flex-direction: column;">
+        <input name='email' type='text' placeholder='Email' class="p-2 mb-2">
+        <button class="btn btn-primary" style=" color: #fff; padding: 10px;">Submit</button>
+    </form>
+        
+    <!-- if errorVariable = true, display error message -->
+    <% if (req.query.blank) { %>
+        <p style="color: red;">Field cannot be blank. Please try again.</p>
+    <% } %>
+
+    <% if (req.query.invalid) { %>
+        <p style="color: red;">Invalid email format. Please try again.</p>
+    <% } %>
+
+    <% if (req.query.incorrect) { %>
+        <p style="color: red;">User not in record. Sign up please.</p>
+        <button class="btn btn-primary"><a href="/signUp"  style="color: #fff; text-decoration: none;">Sign Up</a></button>
+        <br>
+    <% } %>
+    
+  <button class="btn btn-primary mt-3"><a href="/forgotPassword"  style="color: #fff; text-decoration: none;">Back</a></button>
+  </div>
+
+<%- include("templates/footer") %>

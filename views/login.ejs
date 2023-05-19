@@ -28,6 +28,7 @@
         <% if (req.query.incorrect) { %>
             <p style="color: red;">Username not in record. Sign up please.</p>
             <button class="btn btn-primary"><a href="/signUp"  style="color: #fff; text-decoration: none;">Sign Up</a></button>
+            <br>
         <% } %>
 
         <% if (req.query.incorrectPass) { %>
@@ -37,6 +38,7 @@
         <% if (req.query.notLoggedIn) { %>
             <p style="color: red;">Login to access this Page.</p>
         <% } %>
+        <button class="btn btn-primary mt-3"><a href="/"  style="color: #fff; text-decoration: none;">Back</a></button>
       </div>
 </div>
 
