@@ -37,13 +37,23 @@
     }
     #easter-egg {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 92%;
-    height: 92%;
-    object-fit: cover;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    object-fit: contain;
     z-index: 2;
+    width: 80%; 
+    height: 80%;
 }
+
+@media (max-width: 600px) {
+    #easter-egg {
+      /* The aspect ratios below are for mobile view only. */
+        width: 80%; 
+        height: 80%; 
+    }
+}
+
 
     
   </style>
@@ -58,7 +68,7 @@
     // });
 
     var counter = 0;
-var timeoutDuration = 10000; // 10 seconds;
+var timeoutDuration = 3000; // 3 seconds;
 var easterEggVisible = false;
 
 $('#question-form').submit(function(event) {
