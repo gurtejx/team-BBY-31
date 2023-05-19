@@ -15,6 +15,7 @@
       font-size: 20px;
       font-weight: bold;
       min-height: 200px;
+      z-index: 1;
     }
     #question-input {
       width: 50%;
@@ -34,65 +35,122 @@
       font-weight: bold;
       padding: 10px 30px;
     }
+    #easter-egg {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    object-fit: contain;
+    z-index: 2;
+    width: 80%; 
+    height: 80%;
+}
 
-    /* body, html {
-      height: 100%;
-      margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    } */
-
-    .dancing-div {
-      width: 100%;
-      height: 100px;
-      border: 2px solid black;
-      animation: dance 3s infinite;
-      transform-origin: center;
+@media (max-width: 600px) {
+    #easter-egg {
+      /* The aspect ratios below are for mobile view only. */
+        width: 80%; 
+        height: 80%; 
     }
+}
 
-    @keyframes dance {
-      0%, 100% { transform: translateX(0) rotate(0); }
-      25% { transform: translateX(-30px) rotate(-15deg); }
-      50% { transform: translateX(30px) rotate(15deg); }
-      75% { transform: translateX(-15px) rotate(-10deg); }
-    }
+
+    
   </style>
 
   <script>
     $(document).ready(function() {
-    $('#question-form').submit(function(event) {
-      event.preventDefault(); // Prevent default form submission behavior
-      var question = $('#question-input').val();
-      var language = $('#formLanguageSelect').val();
-  
-      // Send an AJAX request to the server
-      $.ajax({
+    var counter = 0; // Initialize the counter
+
+    // // Hide the easter egg when clicked
+    // $('#easter-egg').click(function() {
+    //     $(this).hide();
+    // });
+
+    var counter = 0;
+var timeoutDuration = 3000; // 3 seconds;
+var easterEggVisible = false;
+
+$('#question-form').submit(function(event) {
+    event.preventDefault(); // Prevent default form submission behavior
+
+    var question = $('#question-input').val();
+    var language = $('#formLanguageSelect').val();
+
+    // Check if question input is empty
+    if (!question.trim()) {
+        // Increment counter and check if it's 5
+        if (++counter === 5) {
+            // Show the easter egg if it's not already visible
+            if (!easterEggVisible) {
+                // Hide the body content
+                $('#container').hide();
+                easterEggVisible = true;
+                $('#easter-egg').show(); // Show the easter egg after hiding other elements
+            }
+
+            // Reset counter and show body content after timeoutDuration
+            setTimeout(function() {
+                counter = 0;
+                easterEggVisible = false;
+                $('#easter-egg').hide();
+                $('#container').show();
+            }, timeoutDuration);
+        }
+        return; // Return to avoid making the ajax request
+    }
+
+    // Reset counter if question input is not empty
+    counter = 0;
+
+    // Send an AJAX request to the server
+    $.ajax({
         type: 'POST',
         url: '/respond',
         data: { prompt: question, language: language },
         success: function(response) {
-          // Display the response in the answerDiv
-          $('#answer').text(response.answer);
+            // Display the response in the answerDiv
+            $('#answer').text(response.answer);
         }
-      });
     });
-  });
-  $(document).ready(function() {
-      function danceDiv(divId) {
-        var $div = $("#" + divId);
-        $div.addClass("dancing-div");
-      }
-
-      // Call the danceDiv function with the desired div ID
-      // danceDiv("answer");
-      // danceDiv("question-input");
-      // danceDiv("formLanguageSelect");
-    });
+  }) })
   </script>
 
+<!-- $('#question-form').submit(function(event) {
+  event.preventDefault(); // Prevent default form submission behavior
+
+  var question = $('#question-input').val();
+  var language = $('#formLanguageSelect').val();
+
+  // Check if question input is empty
+  if (!question.trim()) {
+      // Increment counter and check if it's 5
+      if (++counter === 5) {
+          // Show the easter egg and reset counter
+          $('#easter-egg').show();
+          counter = 0;
+      }
+      return; // Return to avoid making the ajax request
+  }
+
+  // Reset counter if question input is not empty
+  counter = 0;
+
+  // Send an AJAX request to the server
+  $.ajax({
+      type: 'POST',
+      url: '/respond',
+      data: { prompt: question, language: language },
+      success: function(response) {
+          // Display the response in the answerDiv
+          $('#answer').text(response.answer);
+      }
+  });
+});
+}); -->
+
   <!-- Content -->
-  <div class="container-fluid">
+  <div class="container-fluid" id="container">
     <div class="row">
       <div class="col-sm-12">
         <iframe id="hidden-iframe" name="hidden-iframe" style="display:none;"></iframe>
@@ -121,33 +179,6 @@
     </div>
   </div>
 
-  <!-- <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      document.getElementById("question-form").addEventListener("submit", function(event) {
-        event.preventDefault(); // prevent default form submission behavior
-        console.log("worked");
-
-        // Get the question and language from the form
-        const question = document.getElementById("question-input").value;
-        const language = document.getElementById("language-select").value;
-
-        // Send the question and language to the server using fetch()
-        fetch("/respond", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ question, language })
-        })
-        .then(response => response.json())
-        .then(data => {
-          // Update the answer div with the response from the server
-          const answerDiv = document.getElementById("answer");
-          answerDiv.innerHTML = data.answer;
-        })
-        .catch(error => console.error(error));
-      });
-    });
-  </script> -->
+<img id="easter-egg" src="/img/easter.gif" style="display: none; border: 2px solid #954a1c;"/>
 
   <%- include("templates/footer") %>
