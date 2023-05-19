@@ -271,13 +271,16 @@ app.post('/respond', async (req, res) => {
       language: language
     });
 
-    const cleanedString = response.data.replace(/\n/g, "").trim();
-    const jsonObject = JSON.parse(cleanedString);
+    const advice = extractAdvice(response.data);
 
-    const generated_text = jsonObject.advice;
-    console.log(generated_text);
+    // const cleanedString = response.data.replace(/\n/g, "").trim();
+    // const jsonObject = JSON.parse(cleanedString);
+    // console.log(jsonObject);
 
-    res.send({ answer: generated_text });
+    // const generated_text = jsonObject.advice;
+    // console.log(generated_text);
+
+    res.send({ answer: advice });
     // res.status(200).json({ generated_text: generated_text });
   } catch (error) {
     console.error(error);
