@@ -8,6 +8,10 @@ const Joi = require("joi"); // input field validation library
 const bcrypt = require('bcrypt');
 const axios = require('axios');
 const saltRounds = 12;
+const notifier = require('node-notifier');
+const nodemailer = require('nodemailer');
+const Mailgen = require('mailgen');
+const jwt = require('jsonwebtoken');
 
 /*
   creates an instance of the Express application by calling the express function.
@@ -31,6 +35,11 @@ const mongodb_password = process.env.MONGODB_PASSWORD;
 const mongodb_database = process.env.MONGODB_DATABASE;
 const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
 const node_session_secret = process.env.NODE_SESSION_SECRET;
+const email_service_provider = process.env.EMAIL_SERVICE_PROVIDER;
+const app_email = process.env.APP_EMAIL;
+const app_email_password = process.env.APP_EMAIL_PASSWORD;
+const jwt_token = process.env.JWT_TOKEN;
+
 
 var { database } = include("databaseConnection");
 
@@ -301,6 +310,10 @@ app.get('/forgotPassword', (req, res) => {
   res.render('forgotPassword', {req});
 });
 
+app.get('/forgotUsername', (req, res) => {
+  res.render('forgotUsername', {req});
+});
+
 app.post('/resetPassword', async (req,res) => {
   var username = req.body.username;
 
@@ -347,11 +360,6 @@ app.post('/verifySecurityQuestion', async (req, res) => {
     return;
   }
 
-  // if (givenAns != req.session.answer) {
-  //   res.redirect("/askSecurityQuestion?incorrect=true");
-  //   return;
-  // }
-
   if (await bcrypt.compare(givenAns, req.session.answer)) {
     //res.render('setNewPassword', {req});
     res.redirect("/setNewPassword");
@@ -393,16 +401,180 @@ app.post('/updatePassword', async (req, res) => {
 
   var hashedPassword = await bcrypt.hashSync(newPassword, saltRounds);
   console.log({username: req.session.username});
-  userCollection.updateOne(
-    { username: req.session.username },
-    { $set: { password: hashedPassword } }
-  );
+  try {
+    userCollection.updateOne(
+      { username: req.session.username },
+      { $set: { password: hashedPassword } }
+    );
+  } catch (error) {
+    // Display a notification alert
+    notifier.notify({
+      title: 'Alert',
+      message: 'Failed to update password: ' + error,
+    });
+    console.log(error);
+    res.redirect('/updatePassword');
+    return;
+  }
 
-  //alert('Password updated successfully!');
+  // Display a notification alert
+  notifier.notify({
+    title: 'Alert',
+    message: 'Password changed successfully!'
+  });
   console.log("Password updated successfully!")
   res.redirect('/login');
-
 })
+
+app.post('/sendResetEmail', async (req, res) => {
+  var userEmail = req.body.email;
+
+  if(userEmail == "") {
+    res.redirect("/forgotUsername?blank=true");
+    return;
+  }
+
+  const schema = Joi.string().email().max(50).required();
+  const validationResult = schema.validate(userEmail);
+  if (validationResult.error != null) {
+    console.log(validationResult.error);
+    res.redirect("/forgotUsername?invalid=true");
+    return;
+  }
+
+  const result = await userCollection.find({
+    email: userEmail
+  }).project({name: 1, username: 1, email: 1, password: 1, profession: 1, _id: 1}).toArray();
+
+  if(result.length != 1) {
+    // that means user has not registered probably
+    res.redirect("/forgotUsername?incorrect=true");
+    return;
+  }
+
+  var name = result[0].name;
+  var username = result[0].username;
+  var id = result[0]._id;
+  req.session.password = result[0].password;
+  req.session.id = id;
+  req.session.email = userEmail;
+
+  /* Functionality to create a one-time usable link*/
+
+  const secret = jwt_token + result[0].password;
+  const payload = {
+    email: userEmail,
+    id: id
+  }
+  const token = jwt.sign(payload, secret, {expiresIn: '15m'});
+  const link = `http://localhost:3020/setNewPassword/${id}/${token}`;
+
+  /* Link section ends here */
+
+  // User's account found in DB, send password reset email
+  // Create a Nodemailer transporter
+  const config = {
+    service: `${email_service_provider}`,
+    auth: {
+      user: `${app_email}`,
+      pass: `${app_email_password}`
+    },
+  };
+  let transporter = nodemailer.createTransport(config);
+
+  let Mailgenerator = new Mailgen({
+    theme: "default",
+    product: {
+      name: "Mailgen",
+      link: 'https://mailgen.js/'
+    }
+  });
+
+  let response = {
+    req: req,
+    body: {
+      name: name,
+      intro: `Voila! Your username is ${username}.`,
+      action: {
+        instructions: 'To reset your password, click the button below:',
+        button: {
+          text: 'Reset Password',
+          link: link
+        }
+      },
+    outro: `If you have any questions, feel free to contact us at ${app_email}.`,
+    // header: {
+    //   title: 'LegallyWise AI',
+    //   logo: logoDataUri
+    // },
+    // footer: {
+    //   greeting: 'Yours truly,',
+    //   name: 'LegallyWise AI',
+    // },
+  }};
+
+  let emailToBeSent = Mailgenerator.generate(response);
+
+  // Define the email options
+  let mailOptions = {
+    from: `${app_email}`,
+    to: userEmail,
+    subject: 'Reset Your Password',
+    html: emailToBeSent
+  };
+
+  // Send the email
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      // Display a notification alert
+      notifier.notify({
+        title: 'Alert',
+        message: 'Failed to send email: ' + error,
+        });
+        console.log(error);
+        res.redirect('/');
+    } else {
+      // Display a notification alert
+      notifier.notify({
+      title: 'Alert',
+      message: 'Email sent: ' + info.response,
+      });
+      console.log('Email sent: ' + info.response);
+      res.redirect('/');
+    }
+  });
+  return;
+});
+
+app.get('/setNewPassword/:id/:token', async (req, res) => {
+  
+  var ObjectId = require('mongodb').ObjectId;
+  var id = req.params.id;
+  var o_id = new ObjectId(id);
+
+  console.log({id: id});
+  // check if user id exists in DB
+  const result = await userCollection.find({
+    _id: o_id 
+  }).project({name: 1, username: 1, email: 1, password: 1, profession: 1, _id: 1}).toArray();
+
+  console.log({result: result[0]});
+  if(result.length != 1) {
+    // that means user has not registered probably
+    res.redirect("/forgotUsername?incorrect=true");
+    return;
+  }
+
+  const secret = jwt_token + result[0].password;
+  try {
+    const payload = jwt.verify(req.params.token, secret);
+    req.session.username = result[0].username;
+    res.render('setNewPassword', {req});
+  } catch (error) {
+    console.log(error);
+    res.redirect('/pageDoesNotExist');
+  }
+});
 
 app.use(express.static(__dirname + "/public"));
 
@@ -412,10 +584,8 @@ app.get("*", (req,res) => {
   res.render('404');
 });
 
-/*
-  starts the application listening on the specified port ('port') and logs a message to the console
-  indicating which port the application is listening on.
-*/
+/* Starts the application listening on the specified port ('port') and logs a message to the console
+  indicating which port the application is listening on. */
 app.listen(port, () => {
     console.log(`Node application listening on port: ${port}`);
 });
