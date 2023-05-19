@@ -1,12 +1,17 @@
 <%- include("templates/header") %>
+<style>
+    body{
+        background-color: #191923;
+    }
+</style>
 
 <div class="mt-5">
-    <div class="alert alert-primary"  style="padding: 15px; width: 350px; margin: 0 auto;">
+    <div class="alert alert-primary"  style="padding: 15px; width: 350px; margin: 0 auto; background-color: #fbfef9; border: none;">
         <h2 style=" text-align: center;">Log In</h2>
         <form action='/loggingin' method='post' style="display: flex; flex-direction: column;">
         <input name='username' type='text' placeholder='Username' class="p-2 mb-2">
         <input name='password' type='password' placeholder='Password' class="p-2 mb-2">
-        <button class="btn btn-primary" style=" color: #fff; padding: 10px;">Submit</button>
+        <button class="btn btn-primary" style=" color: #fbfef9; padding: 10px;">Submit</button>
         <br>
         <a href="/forgotPassword">Forgot username/password ?</a>
         </form>

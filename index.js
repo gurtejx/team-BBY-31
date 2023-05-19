@@ -6,6 +6,7 @@ const session = require('express-session'); // imports the sessions library.
 const MongoStore = require('connect-mongo');
 const Joi = require("joi"); // input field validation library
 const bcrypt = require('bcrypt');
+const axios = require('axios');
 const saltRounds = 12;
 
 /*
@@ -14,6 +15,8 @@ const saltRounds = 12;
   thus, 'app' const is an express app instance.
 */
 const app = express();
+
+app.use(express.json());
 
 // By adding this middleware to your application, you can access the form data sent by the client in a URL-encoded format.
 // This data will be available in the req.body object.
@@ -209,25 +212,56 @@ app.get('/main', sessionValidation, (req, res) => {
   res.render('main');
 });
 
-app.post('/respond', async (req, res) => {
-  var prompt = req.body.prompt;
-  var language = req.body.language;
+// app.post('/respond', async (req, res) => {
+//   var prompt = req.body.prompt;
+//   var language = req.body.language;
+
+//   var role = `Reply as a lawyer`;
   
-  // role prompt
-  prompt = prompt.concat(`Reply as a lawyer`);
+//   // role prompt
+//   prompt = prompt.concat(role);
 
-  // translation prompt engineer
-  prompt = prompt.concat(`\nTranslate response to ${language}.`);
+//   // translation prompt engineer
+//   prompt = prompt.concat(`\nTranslate response to ${language}.`);
+//   prompt = prompt.concat('Generate complete response, and don\'t cut off due to token length');
 
-  var response = await getResponse(prompt);
-  res.send({ answer: response });
+//   var response = await getResponse(prompt);
+//   res.send({ answer: response });
 
-  // Process the question and generate the answer
-  // var answer = generateAnswer(question, language);
+//   // Process the question and generate the answer
+//   // var answer = generateAnswer(question, language);
 
-  // Send the answer as JSON
-  // res.setHeader('Content-Type', 'application/json');
-  // res.status(200).send(JSON.stringify({answer: question}));
+//   // Send the answer as JSON
+//   // res.setHeader('Content-Type', 'application/json');
+//   // res.status(200).send(JSON.stringify({answer: question}));
+// });
+
+app.use(express.json());
+
+app.post('/respond', async (req, res) => {
+  const prompt = req.body.prompt;
+  const language = req.body.language;
+  console.log(prompt);
+
+  try {
+    // Make an HTTP POST request to the Python backend
+    const response = await axios.post('http://lodxzqsita.eu10.qoddiapp.com/respond', {
+      prompt: prompt,
+      language: language
+    });
+
+    const cleanedString = response.data.replace(/\n/g, "").trim();
+    const jsonObject = JSON.parse(cleanedString);
+
+    const generated_text = jsonObject.advice;
+    console.log(generated_text);
+
+    res.send({ answer: generated_text });
+    // res.status(200).json({ generated_text: generated_text });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred' });
+  }
 });
 
 app.get('/fetchProfile', sessionValidation, async (req, res) => {

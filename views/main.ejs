@@ -1,11 +1,14 @@
 <%- include("templates/header") %>
-
-  <script src="/app.js"></script>
+<!-- 
+  <script src="/app.js"></script> -->
 
 
   <!-- <link rel="stylesheet" href="/public/css/main.css"> -->
 
   <style>
+    body{
+      background-color: #191923;
+    }
     #answer {
       border: 2px solid #392f5a;
       padding: 10px;
@@ -141,11 +144,11 @@ $('#question-form').submit(function(event) {
     <div class="row">
       <div class="col-sm-12">
         <iframe id="hidden-iframe" name="hidden-iframe" style="display:none;"></iframe>
-        <h1 class="text-center my-5">Welcome to LegallyWise AI!</h1>
+        <h1 class="text-center my-5" style="color: #fbfef9;">Welcome to LegallyWise AI!</h1>
         <form id="question-form" action='/respond' method='post' target="hidden-iframe">
           <input id="question-input" name="prompt" type="text" class="form-control" placeholder="Enter your legal question">
           <div class="form-group">
-              <label for="formLanguageSelect">Select Language</label>
+              <label for="formLanguageSelect" style="color: #fbfef9;" id="languageLabel">Select Language</label>
               <select class="form-control" id="formLanguageSelect" name="language">
                 <option>English</option>
                 <option>French</option>
@@ -154,15 +157,14 @@ $('#question-form').submit(function(event) {
               </select>
           </div>
           <div>
-            <button type="submit" class="btn btn-primary d-block mx-auto">Ask a Question</button>
+            <button type="submit" class="btn btn-primary d-block mx-auto" style="background-color: #a31621; border-color: #a31621;">Ask a Question</button>
           </div>
         </form>
         <div class="row justify-content-center">
           <div class="col-sm-8">
-            <div id="answer" class="my-4"></div>
+            <div id="answer" class="my-4" style="background-color: #fbfef9;"></div>
           </div>
         </div>
-        <!-- <iframe id="response-frame" name="response-frame" style="display: none;"></iframe> -->
       </div>
     </div>
   </div>
