@@ -6,12 +6,12 @@
 </style>
 
 <div class="mt-5">
-    <div class="alert alert-primary"  style="padding: 15px; width: 350px; margin: 0 auto; background-color: #fbfef9; border: none;">
-        <h2 style=" text-align: center;">Log In</h2>
+    <div class="alert"  style="padding: 15px; width: 350px; margin: 0 auto; background-color: #191923; border: none;">
+        <h2 style=" text-align: center; color: #fbfef9;">Log In</h2>
         <form action='/loggingin' method='post' style="display: flex; flex-direction: column;">
         <input name='username' type='text' placeholder='Username' class="p-2 mb-2">
         <input name='password' type='password' placeholder='Password' class="p-2 mb-2">
-        <button class="btn btn-primary" style=" color: #fbfef9; padding: 10px;">Submit</button>
+        <button class="btn" style=" color: #fbfef9; padding: 10px; background-color: #a31621;">Submit</button>
         <br>
         <a href="/forgotPassword">Forgot username/password ?</a>
         </form>
@@ -38,7 +38,7 @@
         <% if (req.query.notLoggedIn) { %>
             <p style="color: red;">Login to access this Page.</p>
         <% } %>
-        <button class="btn btn-primary mt-3"><a href="/"  style="color: #fff; text-decoration: none;">Back</a></button>
+        <button class="btn mt-3" style="background-color: #a31621; color: #fbfef9;"><a href="/"  style="color: #fff; text-decoration: none;">Back</a></button>
       </div>
 </div>
 
