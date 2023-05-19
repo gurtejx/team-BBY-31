@@ -284,6 +284,10 @@ app.get('/about', (req,res) => {
   res.render('about');
 });
 
+app.get('/transcribe', (req,res) => {
+  res.render('transcribe');
+});
+
 app.get('/contact', (req, res) => {
 res.render('contact');
 }); 
