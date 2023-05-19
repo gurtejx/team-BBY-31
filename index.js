@@ -16,6 +16,8 @@ const saltRounds = 12;
 */
 const app = express();
 
+app.use(express.json());
+
 // By adding this middleware to your application, you can access the form data sent by the client in a URL-encoded format.
 // This data will be available in the req.body object.
 app.use(express.urlencoded({ extended: false }));
