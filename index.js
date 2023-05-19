@@ -247,6 +247,18 @@ app.get('/main', sessionValidation, (req, res) => {
 
 app.use(express.json());
 
+function extractAdvice(responseString) {
+  if (typeof responseString !== 'string') {
+    return responseString.advice; // Return an empty string if the responseString is not a string
+  }
+
+  const adviceStartIndex = responseString.indexOf('advice: "') + 9; // Add 9 to skip "advice: " and the opening quote
+  const adviceEndIndex = responseString.lastIndexOf('"');
+
+  const advice = responseString.substring(adviceStartIndex, adviceEndIndex);
+  return advice;
+}
+
 app.post('/respond', async (req, res) => {
   const prompt = req.body.prompt;
   const language = req.body.language;
