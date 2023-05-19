@@ -247,6 +247,18 @@ app.get('/main', sessionValidation, (req, res) => {
 
 app.use(express.json());
 
+function extractAdvice(responseString) {
+  if (typeof responseString !== 'string') {
+    return responseString.advice; // Return an empty string if the responseString is not a string
+  }
+
+  const adviceStartIndex = responseString.indexOf('advice: "') + 9; // Add 9 to skip "advice: " and the opening quote
+  const adviceEndIndex = responseString.lastIndexOf('"');
+
+  const advice = responseString.substring(adviceStartIndex, adviceEndIndex);
+  return advice;
+}
+
 app.post('/respond', async (req, res) => {
   const prompt = req.body.prompt;
   const language = req.body.language;
@@ -259,13 +271,16 @@ app.post('/respond', async (req, res) => {
       language: language
     });
 
-    const cleanedString = response.data.replace(/\n/g, "").trim();
-    const jsonObject = JSON.parse(cleanedString);
+    const advice = extractAdvice(response.data);
 
-    const generated_text = jsonObject.advice;
-    console.log(generated_text);
+    // const cleanedString = response.data.replace(/\n/g, "").trim();
+    // const jsonObject = JSON.parse(cleanedString);
+    // console.log(jsonObject);
 
-    res.send({ answer: generated_text });
+    // const generated_text = jsonObject.advice;
+    // console.log(generated_text);
+
+    res.send({ answer: advice });
     // res.status(200).json({ generated_text: generated_text });
   } catch (error) {
     console.error(error);
