@@ -54,6 +54,19 @@
     }
 }
 
+#loading-spinner {
+  background-image: url('/img/loading.gif');
+  background-repeat: no-repeat;
+  background-size: cover;
+  width: 200px; /* Adjust the width and height as needed */
+  height: 200px;
+  text-align: center;
+  justify-content: center;
+  display: none; /* Initially hide the spinner */
+  /* Add other styling properties to center the spinner */
+}
+
+
 
     
   </style>
@@ -105,14 +118,29 @@ $('#question-form').submit(function(event) {
 
     // Send an AJAX request to the server
     $.ajax({
-        type: 'POST',
-        url: '/respond',
-        data: { prompt: question, language: language },
-        success: function(response) {
-            // Display the response in the answerDiv
-            $('#answer').text(response.answer);
-        }
-    });
+  type: 'POST',
+  url: '/respond',
+  data: { prompt: question, language: language },
+  beforeSend: function() {
+    // Show the loading spinner
+    $('#loading-spinner').show();
+  },
+  success: function(response) {
+    // Hide the loading spinner
+    $('#loading-spinner').hide();
+
+    // Display the response in the answerDiv
+    $('#answer').text(response.answer);
+  },
+  error: function() {
+    // Hide the loading spinner on error
+    $('#loading-spinner').hide();
+
+    // Handle the error if needed
+    // ...
+  }
+});
+
   }) })
   </script>
 
@@ -172,7 +200,10 @@ $('#question-form').submit(function(event) {
         </form>
         <div class="row justify-content-center">
           <div class="col-sm-8">
-            <div id="answer" class="my-4" style="background-color: #fbfef9;"></div>
+            <div id="answer" class="my-4" style="background-color: #fbfef9;">
+                <!-- Loading spinner element -->
+                <div id="loading-spinner"></div>
+            </div>
           </div>
         </div>
       </div>
