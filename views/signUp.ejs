@@ -16,6 +16,9 @@
     <% if (req.query.invalid) { %>
         <p style="color: red;">Invalid Format. Please try again.</p>
     <% } %>
+    <% if (req.query.userExists) { %>
+        <p style="color: red;">Username/Email already registered.</p>
+    <% } %>
 </div>
 
 <%- include("templates/footer") %>

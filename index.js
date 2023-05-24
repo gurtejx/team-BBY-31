@@ -123,6 +123,26 @@ app.post("/submitUser", async (req, res) => {
     return;
   }
 
+  /* Check if username already exists in the DB */
+  const result = await userCollection.find({
+    username: username
+  }).project({name: 1, username: 1, email: 1, password: 1, question: 1, answer: 1, _id: 1}).toArray();
+
+  if(result.length == 1) {
+    res.redirect("/signUp?userExists=true");
+    return;
+  }
+
+  /* Check if email already exists in the DB */
+  const emailResult = await userCollection.find({
+    email: email
+  }).project({name: 1, username: 1, email: 1, password: 1, question: 1, answer: 1, _id: 1}).toArray();
+
+  if(result.length == 1) {
+    res.redirect("/signUp?userExists=true");
+    return;
+  }
+
   // Set session variables
   req.session.name = name;
   req.session.username = username;
