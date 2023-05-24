@@ -2,15 +2,27 @@
 <!-- Not convinced we will use an answer and question format as bookgpt does.
 May be better just tp have our AI read the document uploaded and explain it in one box
 in simple terms.  -->
+<style>
+    .mobile-text {
+      font-size: 14px;
+      line-height: 1.5;
+      padding: 10px;
+    }
+  </style>
+
 <div class="container">
-    <h1 class="my-4 text-center">Transcribe your Document</h1>
+    <h1 class="my-4 text-center">Explain your Document</h1>
+    <p class="mobile-text">You will upload a document in PDF format and we will take the document, demistify it 
+    through simplification and reducing the legal jargon so you can make better sense of 
+    it in a more digestable form!</p>
+
     <!-- Using bootstrap grid format to center this -->
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <form>
                 <!-- File Upload -->
                 <div class="form-group">
-                    <label for="fileUpload">Upload PDF Document:</label>
+                    <label for="fileUpload" class="mobile-text">Upload PDF Document: <i>It should be primarily text. We can't guarantee the quality or performance if the pdf is filled with images!</i></label>
                     <input type="file" class="form-control-file" id="fileUpload" accept=".pdf">
                 </div>
 

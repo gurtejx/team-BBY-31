@@ -50,13 +50,18 @@
     <% } else { %>
       <div style="text-align: center;">
         <form action="/main">
-          <button type="submit" class="btn btn-primary">Main Page</button>
+          <button type="submit" class="btn btn-primary">Consult LegallyWise AI</button>
         </form>
         <br>
-        <form action="/signout">
+        <form action="/transcribe">
+      <button type="submit" class="btn btn-primary">Explain your Document</button>
+    </form>
+    <br>
+    <br>
+    <form action="/signout">
           <button type="submit" class="btn">Sign Out</button>
         </form>
       </div>
       <% } %>
 
-        <%- include("templates/footer") %>
+<%- include("templates/footer") %>
