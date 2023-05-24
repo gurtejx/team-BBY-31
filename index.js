@@ -124,11 +124,11 @@ app.post("/submitUser", async (req, res) => {
   }
 
   /* Check if username already exists in the DB */
-  const result = await userCollection.find({
+  const usernameResult = await userCollection.find({
     username: username
   }).project({name: 1, username: 1, email: 1, password: 1, question: 1, answer: 1, _id: 1}).toArray();
 
-  if(result.length == 1) {
+  if(usernameResult.length == 1) {
     res.redirect("/signUp?userExists=true");
     return;
   }
@@ -243,6 +243,15 @@ app.post('/loggingin', async (req,res) => {
   } else {
     //user and password combination not found
     res.redirect("/login?incorrectPass=true");
+  }
+});
+
+// Route for checking login status
+app.get('/login-status', (req, res) => {
+  if (req.session.authenticated === true) {
+    res.send({ loggedIn: true });
+  } else {
+    res.send({ loggedIn: false });
   }
 });
 
