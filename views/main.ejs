@@ -1,14 +1,15 @@
 <%- include("templates/header") %>
-<!-- 
+  <!-- 
   <script src="/app.js"></script> -->
 
 
   <!-- <link rel="stylesheet" href="/public/css/main.css"> -->
 
   <style>
-    body{
+    body {
       background-color: #191923;
     }
+
     #answer {
       border: 2px solid #392f5a;
       padding: 10px;
@@ -17,6 +18,7 @@
       min-height: 200px;
       z-index: 1;
     }
+
     #question-input {
       width: 50%;
       height: 100px;
@@ -27,6 +29,7 @@
       margin: 0 auto 20px auto;
       display: block;
     }
+
     button[type="submit"] {
       background-color: #1215b8;
       border-color: #9dd9d2;
@@ -35,88 +38,98 @@
       font-weight: bold;
       padding: 10px 30px;
     }
-    #easter-egg {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    object-fit: contain;
-    z-index: 2;
-    width: 80%; 
-    height: 80%;
-}
 
-@media (max-width: 600px) {
     #easter-egg {
-      /* The aspect ratios below are for mobile view only. */
-        width: 80%; 
-        height: 80%; 
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      object-fit: contain;
+      z-index: 2;
+      width: 80%;
+      height: 80%;
     }
-}
 
+    @media (max-width: 600px) {
+      #easter-egg {
+        /* The aspect ratios below are for mobile view only. */
+        width: 80%;
+        height: 80%;
+      }
+    }
 
-    
+    #formLanguageSelect {
+      width: 100%;
+      max-width: 400px;
+      font-size: 14px;
+      padding: 3px;
+      border: 2px solid #fbfbfb;
+      border-radius: 10px;
+      margin: 0 auto 20px auto;
+      display: block;
+    }
   </style>
 
   <script>
-    $(document).ready(function() {
-    var counter = 0; // Initialize the counter
+    $(document).ready(function () {
+      var counter = 0; // Initialize the counter
 
-    // // Hide the easter egg when clicked
-    // $('#easter-egg').click(function() {
-    //     $(this).hide();
-    // });
+      // // Hide the easter egg when clicked
+      // $('#easter-egg').click(function() {
+      //     $(this).hide();
+      // });
 
-    var counter = 0;
-var timeoutDuration = 3000; // 3 seconds;
-var easterEggVisible = false;
+      var counter = 0;
+      var timeoutDuration = 3000; // 3 seconds;
+      var easterEggVisible = false;
 
-$('#question-form').submit(function(event) {
-    event.preventDefault(); // Prevent default form submission behavior
+      $('#question-form').submit(function (event) {
+        event.preventDefault(); // Prevent default form submission behavior
 
-    var question = $('#question-input').val();
-    var language = $('#formLanguageSelect').val();
+        var question = $('#question-input').val();
+        var language = $('#formLanguageSelect').val();
 
-    // Check if question input is empty
-    if (!question.trim()) {
-        // Increment counter and check if it's 5
-        if (++counter === 5) {
+        // Check if question input is empty
+        if (!question.trim()) {
+          // Increment counter and check if it's 5
+          if (++counter === 5) {
             // Show the easter egg if it's not already visible
             if (!easterEggVisible) {
-                // Hide the body content
-                $('#container').hide();
-                easterEggVisible = true;
-                $('#easter-egg').show(); // Show the easter egg after hiding other elements
+              // Hide the body content
+              $('#container').hide();
+              easterEggVisible = true;
+              $('#easter-egg').show(); // Show the easter egg after hiding other elements
             }
 
             // Reset counter and show body content after timeoutDuration
-            setTimeout(function() {
-                counter = 0;
-                easterEggVisible = false;
-                $('#easter-egg').hide();
-                $('#container').show();
+            setTimeout(function () {
+              counter = 0;
+              easterEggVisible = false;
+              $('#easter-egg').hide();
+              $('#container').show();
             }, timeoutDuration);
+          }
+          return; // Return to avoid making the ajax request
         }
-        return; // Return to avoid making the ajax request
-    }
 
-    // Reset counter if question input is not empty
-    counter = 0;
+        // Reset counter if question input is not empty
+        counter = 0;
 
-    // Send an AJAX request to the server
-    $.ajax({
-        type: 'POST',
-        url: '/respond',
-        data: { prompt: question, language: language },
-        success: function(response) {
+        // Send an AJAX request to the server
+        $.ajax({
+          type: 'POST',
+          url: '/respond',
+          data: { prompt: question, language: language },
+          success: function (response) {
             // Display the response in the answerDiv
             $('#answer').text(response.answer);
-        }
-    });
-  }) })
+          }
+        });
+      })
+    })
   </script>
 
-<!-- $('#question-form').submit(function(event) {
+  <!-- $('#question-form').submit(function(event) {
   event.preventDefault(); // Prevent default form submission behavior
 
   var question = $('#question-input').val();
@@ -150,35 +163,43 @@ $('#question-form').submit(function(event) {
 }); -->
 
   <!-- Content -->
-  <div class="container-fluid" id="container">
+  <div class="container-fluid text-center" id="container">
     <div class="row">
       <div class="col-sm-12">
         <iframe id="hidden-iframe" name="hidden-iframe" style="display:none;"></iframe>
-        <h1 class="text-center my-5" style="color: #fbfef9;">Welcome to LegallyWise AI!</h1>
+        <h1 class="text-center" style="color: #fbfef9;">Welcome to LegallyWise AI!</h1>
+        </br>
+        <p class="text-center" style="color: #fbfef9;">Please submit your legal inquiry in the designated text field
+          below and anticipate the response, which will be provided in the larger text box with a slight delay.</p>
         <form id="question-form" action='/respond' method='post' target="hidden-iframe">
-          <input id="question-input" name="prompt" type="text" class="form-control" placeholder="Enter your legal question">
-          <div class="form-group">
-              <label for="formLanguageSelect" style="color: #fbfef9;" id="languageLabel">Select Language</label>
-              <select class="form-control" id="formLanguageSelect" name="language">
+          <div class="row justify-content-center">
+            <div class="col-sm-8">
+              <div id="answer" class="my-4" style="background-color: #fbfef9;"></div>
+            </div>
+            <div class="form-group">
+              <label for="formLanguageSelect" style="color: #fbfef9;" id="languageLabel" class="col-auto">Select
+                Language</label>
+              <select class="form-control col-auto" id="formLanguageSelect" name="language">
                 <option>English</option>
                 <option>French</option>
                 <option>Spanish</option>
                 <option>Arabic</option>
               </select>
-          </div>
-          <div>
-            <button type="submit" class="btn btn-primary d-block mx-auto" style="background-color: #a31621; border-color: #a31621;">Ask a Question</button>
-          </div>
+            </div>
+            <input id="question-input" name="prompt" type="text" class="form-control col-sm-6" style="height: 10%;"
+              placeholder="Enter a legal question">
+            <div>
+              <button type="submit" class="btn btn-primary d-block mx-auto"
+                style="background-color: #a31621; border-color: #a31621;">Ask a Question</button>
+            </div>
         </form>
-        <div class="row justify-content-center">
-          <div class="col-sm-8">
-            <div id="answer" class="my-4" style="background-color: #fbfef9;"></div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
 
-<img id="easter-egg" src="/img/easter.gif" style="display: none; border: 2px solid #954a1c;"/>
+
+
+
+  <img id="easter-egg" src="/img/easter.gif" style="display: none; border: 2px solid #954a1c;" />
 
   <%- include("templates/footer") %>
