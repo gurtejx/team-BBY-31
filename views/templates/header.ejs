@@ -55,7 +55,7 @@
                 <a class="nav-link" style="color: #a31621; font-weight: bold;" href="/contact">Contact</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="navbarLogout" style="color: #a31621; font-weight: bold;" href="/signout">Logout</a>
+                <a class="nav-link" id="navbarLogout" style="color: #a31621; font-weight: bold; display: none;" href="/signout">Logout</a>
             </li>
         </ul>
     </nav>
@@ -63,13 +63,11 @@
     <script>
         $(document).ready(() => {
             $.get('/login-status', function(data) {
+                var logoutButton = document.getElementById('navbarLogout');
                  if (data.loggedIn) {
                     // User is logged in, show the logout button
-                    $('#navbarLogout').show();
-            } else {
-                    // User is not logged in, hide the logout button
-                    $('#navbarLogout').hide();
-            }
+                    logoutButton.style.display = '';
+                 } 
         });
         });
     </script>
