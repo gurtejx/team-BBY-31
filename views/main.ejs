@@ -8,19 +8,29 @@
   <style>
     body {
       background-color: #191923;
+      color: #fbfef9;
+      font-family: Arial, sans-serif;
     }
 
-    #answer {
-      border: 2px solid #392f5a;
-      padding: 10px;
-      font-size: 20px;
-      font-weight: bold;
-      min-height: 200px;
-      z-index: 1;
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 30px;
+    }
+
+    form {
+      text-align: center;
     }
 
     #question-input {
-      width: 50%;
+      width: 100%;
+      max-width: 400px;
       height: 100px;
       font-size: 20px;
       padding: 20px;
@@ -30,13 +40,45 @@
       display: block;
     }
 
+    /* Armaan's form language select*/
+    /* #formLanguageSelect {
+      width: 100%;
+      max-width: 400px;
+      font-size: 16px;
+      padding: 10px;
+      border: 2px solid #392f5a;
+      border-radius: 10px;
+      margin: 0 auto 20px auto;
+      display: block;
+    } */
+
     button[type="submit"] {
-      background-color: #1215b8;
-      border-color: #9dd9d2;
-      color: #e0dfd5;
+      background-color: #a31621;
+      border-color: #a31621;
+      color: #fbfef9;
       font-size: 20px;
       font-weight: bold;
       padding: 10px 30px;
+    }
+
+    #answer {
+      border: 2px solid #392f5a;
+      padding: 10px;
+      font-size: 20px;
+      font-weight: bold;
+      min-height: 200px;
+      margin-bottom: 30px;
+    }
+
+    #loading-spinner {
+      background-image: url('/img/loading.gif');
+      background-repeat: no-repeat;
+      background-size: cover;
+      text-align: center;
+      margin: 20px auto;
+      width: 100px;
+      height: 100px;
+      display: none;
     }
 
     #easter-egg {
@@ -125,34 +167,33 @@
 
         // Reset counter if question input is not empty
         counter = 0;
+        
+    // Send an AJAX request to the server
+    $.ajax({
+  type: 'POST',
+  url: '/respond',
+  data: { prompt: question, language: language },
+  beforeSend: function() {
+    // Show the loading spinner
+    $('#loading-spinner').show();
+  },
+  success: function(response) {
+    // Hide the loading spinner
+    $('#loading-spinner').hide();
 
-        // Send an AJAX request to the server
-        $.ajax({
-          type: 'POST',
-          url: '/respond',
-          data: { prompt: question, language: language },
-          beforeSend: function () {
-            // Show the loading spinner
-            $('#loading-spinner').show();
-          },
-          success: function (response) {
-            // Hide the loading spinner
-            $('#loading-spinner').hide();
+    // Display the response in the answerDiv
+    $('#answer').text(response.answer);
+  },
+  error: function() {
+    // Hide the loading spinner on error
+    $('#loading-spinner').hide();
 
-            // Display the response in the answerDiv
-            $('#answer').text(response.answer);
-          },
-          error: function () {
-            // Hide the loading spinner on error
-            $('#loading-spinner').hide();
+    // Handle the error if needed
+    // ...
+  }
+});
 
-            // Handle the error if needed
-            // ...
-          }
-        });
-
-      })
-    })
+  }) })
   </script>
 
   <!-- Content -->

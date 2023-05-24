@@ -1,7 +1,7 @@
 <%- include("templates/header") %>
     <style>
         input:-webkit-autofill {
-            -webkit-box-shadow: 0 0 0 30px #191923 inset;
+            box-shadow: 0 0 0 30px #191923 inset;
             -webkit-text-fill-color: #fbfef9 !important;
             border: none !important;
         }
@@ -29,10 +29,13 @@
 
             <% if (req.query.blank) { %>
                 <p style="color: red;">Fields cannot be blank. Please try again.</p>
-                <% } %>
-                    <% if (req.query.invalid) { %>
-                        <p style="color: red;">Invalid Format. Please try again.</p>
-                        <% } %>
+            <% } %>
+            <% if (req.query.invalid) { %>
+                <p style="color: red;">Invalid Format. Please try again.</p>
+            <% } %>
+            <% if (req.query.userExists) { %>
+                <p style="color: red;">Username/Email already registered.</p>
+            <% } %>
         </div>
     </body>
 
