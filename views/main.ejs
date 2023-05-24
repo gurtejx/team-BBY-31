@@ -6,19 +6,31 @@
   <!-- <link rel="stylesheet" href="/public/css/main.css"> -->
 
   <style>
-    body{
+    body {
       background-color: #191923;
+      color: #fbfef9;
+      font-family: Arial, sans-serif;
     }
-    #answer {
-      border: 2px solid #392f5a;
-      padding: 10px;
-      font-size: 20px;
-      font-weight: bold;
-      min-height: 200px;
-      z-index: 1;
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
     }
+
+    h1 {
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 30px;
+    }
+
+    form {
+      text-align: center;
+    }
+
     #question-input {
-      width: 50%;
+      width: 100%;
+      max-width: 400px;
       height: 100px;
       font-size: 20px;
       padding: 20px;
@@ -27,24 +39,46 @@
       margin: 0 auto 20px auto;
       display: block;
     }
+
+    #formLanguageSelect {
+      width: 100%;
+      max-width: 400px;
+      font-size: 16px;
+      padding: 10px;
+      border: 2px solid #392f5a;
+      border-radius: 10px;
+      margin: 0 auto 20px auto;
+      display: block;
+    }
+
     button[type="submit"] {
-      background-color: #1215b8;
-      border-color: #9dd9d2;
-      color: #e0dfd5;
+      background-color: #a31621;
+      border-color: #a31621;
+      color: #fbfef9;
       font-size: 20px;
       font-weight: bold;
       padding: 10px 30px;
     }
-    #easter-egg {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    object-fit: contain;
-    z-index: 2;
-    width: 80%; 
-    height: 80%;
-}
+
+    #answer {
+      border: 2px solid #392f5a;
+      padding: 10px;
+      font-size: 20px;
+      font-weight: bold;
+      min-height: 200px;
+      margin-bottom: 30px;
+    }
+
+    #loading-spinner {
+      background-image: url('/img/loading.gif');
+      background-repeat: no-repeat;
+      background-size: cover;
+      text-align: center;
+      margin: 20px auto;
+      width: 100px;
+      height: 100px;
+      display: none;
+    }
 
 @media (max-width: 600px) {
     #easter-egg {
@@ -53,6 +87,7 @@
         height: 80%; 
     }
 }
+
 
 
     
@@ -105,14 +140,29 @@ $('#question-form').submit(function(event) {
 
     // Send an AJAX request to the server
     $.ajax({
-        type: 'POST',
-        url: '/respond',
-        data: { prompt: question, language: language },
-        success: function(response) {
-            // Display the response in the answerDiv
-            $('#answer').text(response.answer);
-        }
-    });
+  type: 'POST',
+  url: '/respond',
+  data: { prompt: question, language: language },
+  beforeSend: function() {
+    // Show the loading spinner
+    $('#loading-spinner').show();
+  },
+  success: function(response) {
+    // Hide the loading spinner
+    $('#loading-spinner').hide();
+
+    // Display the response in the answerDiv
+    $('#answer').text(response.answer);
+  },
+  error: function() {
+    // Hide the loading spinner on error
+    $('#loading-spinner').hide();
+
+    // Handle the error if needed
+    // ...
+  }
+});
+
   }) })
   </script>
 
@@ -172,7 +222,11 @@ $('#question-form').submit(function(event) {
         </form>
         <div class="row justify-content-center">
           <div class="col-sm-8">
-            <div id="answer" class="my-4" style="background-color: #fbfef9;"></div>
+            <div id="answer" class="my-4" style="background-color: #fbfef9;">
+                <!-- Loading spinner element -->
+                <div id="loading-spinner">
+                </div>
+            </div>
           </div>
         </div>
       </div>
