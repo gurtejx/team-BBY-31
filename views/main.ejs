@@ -127,7 +127,6 @@
         counter = 0;
 
         // Send an AJAX request to the server
-
         $.ajax({
           type: 'POST',
           url: '/respond',
@@ -152,40 +151,9 @@
           }
         });
 
+      })
+    })
   </script>
-
-  <!-- $('#question-form').submit(function(event) {
-  event.preventDefault(); // Prevent default form submission behavior
-
-  var question = $('#question-input').val();
-  var language = $('#formLanguageSelect').val();
-
-  // Check if question input is empty
-  if (!question.trim()) {
-      // Increment counter and check if it's 5
-      if (++counter === 5) {
-          // Show the easter egg and reset counter
-          $('#easter-egg').show();
-          counter = 0;
-      }
-      return; // Return to avoid making the ajax request
-  }
-
-  // Reset counter if question input is not empty
-  counter = 0;
-
-  // Send an AJAX request to the server
-  $.ajax({
-      type: 'POST',
-      url: '/respond',
-      data: { prompt: question, language: language },
-      success: function(response) {
-          // Display the response in the answerDiv
-          $('#answer').text(response.answer);
-      }
-  });
-});
-}); -->
 
   <!-- Content -->
   <div class="container-fluid text-center" id="container">
