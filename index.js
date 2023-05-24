@@ -123,6 +123,26 @@ app.post("/submitUser", async (req, res) => {
     return;
   }
 
+  /* Check if username already exists in the DB */
+  const usernameResult = await userCollection.find({
+    username: username
+  }).project({name: 1, username: 1, email: 1, password: 1, question: 1, answer: 1, _id: 1}).toArray();
+
+  if(usernameResult.length == 1) {
+    res.redirect("/signUp?userExists=true");
+    return;
+  }
+
+  /* Check if email already exists in the DB */
+  const emailResult = await userCollection.find({
+    email: email
+  }).project({name: 1, username: 1, email: 1, password: 1, question: 1, answer: 1, _id: 1}).toArray();
+
+  if(result.length == 1) {
+    res.redirect("/signUp?userExists=true");
+    return;
+  }
+
   // Set session variables
   req.session.name = name;
   req.session.username = username;
@@ -133,10 +153,19 @@ app.post("/submitUser", async (req, res) => {
   res.render('securityQuestion', {req});
 });
 
+app.get('/setSecurityQuestion', (req, res) => {
+  res.render('securityQuestion', {req});
+});
+
 app.post("/setSecurityQuestion", async (req, res) => {
   // Get the inputs from the security question form
   var question = req.body.question;
   var answer = req.body.answer;
+
+  if (answer == "" ) {
+    res.redirect("/setSecurityQuestion?blank=true");
+    return;
+  }
 
   // Get the inputs from the previous form using session variables
   var name = req.session.name;
@@ -214,6 +243,15 @@ app.post('/loggingin', async (req,res) => {
   } else {
     //user and password combination not found
     res.redirect("/login?incorrectPass=true");
+  }
+});
+
+// Route for checking login status
+app.get('/login-status', (req, res) => {
+  if (req.session.authenticated === true) {
+    res.send({ loggedIn: true });
+  } else {
+    res.send({ loggedIn: false });
   }
 });
 
