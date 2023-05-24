@@ -239,7 +239,7 @@ app.post('/loggingin', async (req,res) => {
     req.session.username = username;
     req.session.cookie.maxAge = expireTime;
     req.session.name = result[0].name; 
-    res.redirect('/main');
+    res.redirect('/');
   } else {
     //user and password combination not found
     res.redirect("/login?incorrectPass=true");
