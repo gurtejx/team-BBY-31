@@ -1,45 +1,65 @@
 <%- include("templates/header") %>
-<style>
-    body{
-        background-color: #191923;
-    }
-</style>
+    <style>
+        body {
+            background-color: #191923;
+        }
+        input:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0 30px #191923 inset;
+            -webkit-text-fill-color: #fbfef9 !important;
+        }
+    </style>
 
-<div class="mt-5">
-    <div class="alert alert-primary"  style="padding: 15px; width: 350px; margin: 0 auto; background-color: #fbfef9; border: none;">
-        <h2 style=" text-align: center;">Log In</h2>
-        <form action='/loggingin' method='post' style="display: flex; flex-direction: column;">
-        <input name='username' type='text' placeholder='Username' class="p-2 mb-2">
-        <input name='password' type='password' placeholder='Password' class="p-2 mb-2">
-        <button class="btn btn-primary" style=" color: #fbfef9; padding: 10px;">Submit</button>
-        <br>
-        <a href="/forgotPassword">Forgot username/password ?</a>
-        </form>
-        
-        <!-- if errorVariable = true, display error message -->
-        <% if (req.query.blank) { %>
-            <p style="color: red;">Fields cannot be blank. Please try again.</p>
-        <% } %>
-    
-        <% if (req.query.invalid) { %>
-            <p style="color: red;">Fields cannot be blank. Please try again.</p>
-        <% } %>
-    
-        <% if (req.query.incorrect) { %>
-            <p style="color: red;">Username not in record. Sign up please.</p>
-            <button class="btn btn-primary"><a href="/signUp"  style="color: #fff; text-decoration: none;">Sign Up</a></button>
-            <br>
+    <div style="display: flex; justify-content: center; align-items: center; height: 70vh;">
+        <div class="alert"
+            style="padding: 15px; width: 350px; margin: 0 auto; background-color: transparent; border: none; box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);">
+            <h2 style="text-align: center; color: #fbfef9;">Log In</h2>
+            <form action="/loggingin" method="post" style="display: flex; flex-direction: column;">
+                <input name="username" type="text" placeholder="Username" class="form-input"
+                    style="background-color: transparent; border: none; border-bottom: 1px solid #ddd; margin-bottom: 10px; height: 40px; padding: 8px; color: #fbfef9; outline: none;">
+                <input name="password" type="password" placeholder="Password" class="form-input"
+                    style="background-color: transparent; border: none; border-bottom: 1px solid #ddd; margin-bottom: 10px; height: 40px; padding: 8px; color: #fbfef9; outline: none;">
+                <button class="btn"
+                    style="color: #fbfef9; padding: 10px; background-color: #a31621; border: none; border-radius: 4px;">Submit</button>
+                <br>
+                <a href="/forgotPassword" style="color: #fbfef9; text-decoration: none;">Forgot username/password?</a>
+            </form>
+
+
+
+
+
+
+
+
+
+
+    <!-- if errorVariable = true, display error message -->
+    <% if (req.query.blank) { %>
+        <p style="color: red;">Fields cannot be blank. Please try again.</p>
         <% } %>
 
-        <% if (req.query.incorrectPass) { %>
-            <p style="color: red;">Incorrect password. Please try again.</p>
-        <% } %>
-    
-        <% if (req.query.notLoggedIn) { %>
-            <p style="color: red;">Login to access this Page.</p>
-        <% } %>
-        <button class="btn btn-primary mt-3"><a href="/"  style="color: #fff; text-decoration: none;">Back</a></button>
-      </div>
-</div>
+            <% if (req.query.invalid) { %>
+                <p style="color: red;">Fields cannot be blank. Please try again.</p>
+                <% } %>
 
-<%- include("templates/footer") %>
+                    <% if (req.query.incorrect) { %>
+                        <p style="color: red;">Username not in record. Sign up please.</p>
+                        <button class="btn btn-primary"><a href="/signUp"
+                                style="color: #fff; text-decoration: none;">Sign Up</a></button>
+                        <br>
+                        <% } %>
+
+                            <% if (req.query.incorrectPass) { %>
+                                <p style="color: red;">Incorrect password. Please try again.</p>
+                                <% } %>
+
+                                    <% if (req.query.notLoggedIn) { %>
+                                        <p style="color: red;">Login to access this Page.</p>
+                                        <% } %>
+                                            <button class="btn mt-3"
+                                                style="background-color: #a31621; color: #fbfef9;"><a href="/"
+                                                    style="color: #fff; text-decoration: none;">Back</a></button>
+                                            </div>
+                                            </div>
+
+                                            <%- include("templates/footer") %>

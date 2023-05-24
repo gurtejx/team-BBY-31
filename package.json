@@ -20,12 +20,12 @@
     "fs": "^0.0.1-security",
     "joi": "^17.9.2",
     "jsonwebtoken": "^9.0.0",
-    "mailgen": "^2.0.27",
-    "node-notifier": "^10.0.1",
-    "nodemailer": "^6.9.2",
     "langchain": "^0.0.77",
+    "mailgen": "^2.0.27",
     "mongo-connect": "^0.0.6",
     "node-fetch": "^3.3.1",
+    "node-notifier": "^10.0.1",
+    "nodemailer": "^6.9.2",
     "openai": "^3.2.1"
   },
   "devDependencies": {
