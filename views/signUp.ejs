@@ -1,22 +1,39 @@
 <%- include("templates/header") %>
-<body style="background-color: #191923;">
-<div class="mt-5 alert alert-primary" style="padding: 15px; max-width: 350px; margin: 0 auto; background-color: #191923; border-color: #191923;">
-    <h2 style="text-align: center;color: #fbfef9;">Sign Up</h2>
-    <form action='/submitUser' method='post' style="display: flex; flex-direction: column;">
-    <input name='name' type='text' placeholder='Name' class="p-2 mb-2">
-    <input name='username' type='text' placeholder='Username' class="p-2 mb-2">
-    <input name='profession' type='text' placeholder='Profession' class="p-2 mb-2">
-    <input name='email' type='text' placeholder='Email' class="p-2 mb-2">
-    <input name='password' type='password' placeholder='Password' class="p-2 mb-2">
-    <button class="btn p-2" style="color: #fbfef9; background-color: #a31621; ">Submit</button>
-    </form>
-    <% if (req.query.blank) { %>
-        <p style="color: red;">Fields cannot be blank. Please try again.</p>
-    <% } %>
-    <% if (req.query.invalid) { %>
-        <p style="color: red;">Invalid Format. Please try again.</p>
-    <% } %>
-</div>
-</body>
+    <style>
+        input:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0 30px #191923 inset;
+            -webkit-text-fill-color: #fbfef9 !important;
+            border: none !important;
+        }
+    </style>
 
-<%- include("templates/footer") %>
+    <body style="background-color: #191923;">
+        <div class="mt-5"
+            style="padding: 15px; max-width: 350px; margin: 0 auto; background-color: #191923; border-color: #191923; box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);">
+            <h2 style="text-align: center; color: #fbfef9;">Sign Up</h2>
+            <form action="/submitUser" method="post" style="display: flex; flex-direction: column;">
+                <input name="name" type="text" placeholder="Name" class="form-input"
+                    style="background-color: transparent; border: none; border-bottom: 1px solid #fbfef9; margin-bottom: 10px; height: 40px; padding: 8px; color: #fbfef9;">
+                <input name="username" type="text" placeholder="Username" class="form-input"
+                    style="background-color: transparent; border: none; border-bottom: 1px solid #fbfef9; margin-bottom: 10px; height: 40px; padding: 8px; color: #fbfef9;">
+                <input name="profession" type="text" placeholder="Profession" class="form-input"
+                    style="background-color: transparent; border: none; border-bottom: 1px solid #fbfef9; margin-bottom: 10px; height: 40px; padding: 8px; color: #fbfef9;">
+                <input name="email" type="text" placeholder="Email" class="form-input"
+                    style="background-color: transparent; border: none; border-bottom: 1px solid #fbfef9; margin-bottom: 10px; height: 40px; padding: 8px; color: #fbfef9;">
+                <input name="password" type="password" placeholder="Password" class="form-input"
+                    style="background-color: transparent; border: none; border-bottom: 1px solid #fbfef9; margin-bottom: 10px; height: 40px; padding: 8px; color: #fbfef9;">
+                <button class="btn p-2"
+                    style="color: #fbfef9; background-color: #a31621; border: none; border-radius: 4px;">Submit</button>
+            </form>
+
+
+            <% if (req.query.blank) { %>
+                <p style="color: red;">Fields cannot be blank. Please try again.</p>
+                <% } %>
+                    <% if (req.query.invalid) { %>
+                        <p style="color: red;">Invalid Format. Please try again.</p>
+                        <% } %>
+        </div>
+    </body>
+
+    <%- include("templates/footer") %>
