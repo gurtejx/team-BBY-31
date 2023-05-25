@@ -624,8 +624,9 @@ app.post('/askQuestion', async(req, res) => {
     const response = await axios.post('http://lodxzqsita.eu10.qoddiapp.com/askQuestion', {
       question: req.body.ques
     });
-    console.log(response);
-    res.send("question Asked");
+    console.log(response.data.response);
+    var answer = response.data.response;
+    res.send({ reply: answer });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'An error occurred' });
