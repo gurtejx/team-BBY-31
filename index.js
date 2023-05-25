@@ -617,8 +617,16 @@ app.post('/pdf', async (req, res) => {
 });
 
 app.post('/askQuestion', async(req, res) => {
-  console.log(req.body);
-  res.send("question Asked");
+  try {
+    // Make an HTTP POST request to the Python backend
+    const response = await axios.post('http://lodxzqsita.eu10.qoddiapp.com/askQuestion', {
+      question: req.body.question
+    });
+    res.send("question Asked");
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred' });
+  }
 });
 
 app.use(express.static(__dirname + "/public"));
