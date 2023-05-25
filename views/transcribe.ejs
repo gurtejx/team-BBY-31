@@ -103,7 +103,7 @@ $(document).ready(function() {
       contentType: "application/json",
       success: function(response) {
         console.log(response.reply);
-        $('#answerInput').val(response.answer);
+        $('#answerInput').text(response.reply);
       },
       error: function() {
         console.log("error making request");
@@ -173,7 +173,7 @@ $(document).ready(function() {
           <!-- Answer -->
           <div class="form-group">
             <label for="answerInput">Answer:</label>
-            <textarea class="form-control" id="answerInput" rows="3"></textarea>
+            <div class="form-control" id="answerInput" rows="3"></div>
           </div>
   
           <div class="form-group text-center">
