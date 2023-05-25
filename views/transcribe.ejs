@@ -74,6 +74,7 @@ $(document).ready(function() {
         console.log(response);
       },
       error: function() {
+        console.log('parse error');
         // Handle the error if needed
       }
     });
@@ -93,15 +94,18 @@ $(document).ready(function() {
     if(question == "") { console.log("no query"); return}
 
     console.log(question);
-    
+
     $.ajax({
       type: 'POST',
       url: '/askQuestion',
-      data: { question : question },
+      data: JSON.stringify({ ques : question }),
+      processData: false,
+      contentType: "application/json",
       success: function(response) {
         console.log(response);
       },
       error: function() {
+        console.log("error making request");
         // Handle the error if needed
       }
     });
