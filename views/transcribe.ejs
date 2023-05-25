@@ -78,6 +78,34 @@ $(document).ready(function() {
       }
     });
   });
+
+  $('#askQuestion').submit(async function(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    var fileInput = $('#fileUpload')[0];
+    var file = fileInput.files[0];
+    if (file == null) {
+        console.log("No file uploaded");
+        return;
+    }
+
+    var question = $('#questionInput').val();
+    if(question == "") { console.log("no query"); return}
+
+    console.log(question);
+    
+    $.ajax({
+      type: 'POST',
+      url: '/askQuestion',
+      data: { question : question },
+      success: function(response) {
+        console.log(response);
+      },
+      error: function() {
+        // Handle the error if needed
+      }
+    });
+  });
 });
 
 </script>
@@ -125,21 +153,29 @@ $(document).ready(function() {
           </form>
         </div>
 
-        <!-- Question -->
+        <form
+            id="askQuestion"
+            action="/askQuestion"
+            method="post"
+            target="hidden-iframe-pdf"
+        >
+            <!-- Question -->
         <div class="form-group">
-          <label for="questionInput">What is your question?:</label>
-          <textarea class="form-control" id="questionInput" rows="3"></textarea>
-        </div>
-
-        <!-- Answer -->
-        <div class="form-group">
-          <label for="answerInput">Answer:</label>
-          <textarea class="form-control" id="answerInput" rows="3"></textarea>
-        </div>
-
-        <div class="form-group text-center">
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </div>
+            <label for="questionInput">What is your question?:</label>
+            <textarea class="form-control" id="questionInput" rows="3"></textarea>
+          </div>
+  
+          <!-- Answer -->
+          <div class="form-group">
+            <label for="answerInput">Answer:</label>
+            <textarea class="form-control" id="answerInput" rows="3"></textarea>
+          </div>
+  
+          <div class="form-group text-center">
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+        
       </div>
     </div>
   </div>
