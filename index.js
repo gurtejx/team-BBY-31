@@ -630,7 +630,7 @@ app.get('/setNewPassword/:id/:token', async (req, res) => {
 });
 
 app.post('/pdf', async (req, res) => {
-  console.log(req.body);
+  console.log(req.body.pdfData);
   res.send("communicated");
 })
 

@@ -10,46 +10,76 @@ in simple terms.  -->
   }
 </style>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+
+
 <script>
-  $(document).ready(function() {
-     console.log('script loaded');
-         $('#uploadForm').submit(function(event) {
-             event.preventDefault(); // Prevent default form submission
 
-             var fileInput = $('#fileUpload')[0];
-             var file = fileInput.files[0];
+// Function to extract text from PDF
+function extractTextFromPDF(file) {
+  return new Promise((resolve, reject) => {
+    var reader = new FileReader();
+    reader.onload = function(event) {
+      var typedarray = new Uint8Array(event.target.result);
+      pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
+        var totalPages = pdf.numPages;
+        var extractedText = "";
 
-             var formData = new FormData();
-             formData.append('pdfFile', file);
+        // Iterate over each page
+        var promises = [];
+        for (var i = 1; i <= totalPages; i++) {
+          promises.push(
+            pdf.getPage(i).then(function(page) {
+              return page.getTextContent().then(function(textContent) {
+                // Concatenate the text content of each page
+                var pageText = "";
+                for (var j = 0; j < textContent.items.length; j++) {
+                  pageText += textContent.items[j].str + " ";
+                }
+                return pageText;
+              });
+            })
+          );
+        }
 
-             console.log('event listener worked');
+        // Wait for all promises to resolve
+        Promise.all(promises).then(function(results) {
+          extractedText = results.join(" ");
+          resolve(extractedText);
+        });
+      });
+    };
+    reader.readAsArrayBuffer(file);
+  });
+}
 
-             // Send an AJAX request to the server
-     $.ajax({
-   type: 'POST',
-   url: '/pdf',
-   data: formData,
-   beforeSend: function() {
-     // Show the loading spinner
-     // $('#loading-spinner').show();
-   },
-   success: function(response) {
-     // Hide the loading spinner
-     // $('#loading-spinner').hide();
+$(document).ready(function() {
+  console.log("script loaded");
+  $('#uploadForm').submit(async function(event) {
+    event.preventDefault(); // Prevent default form submission
 
-     // Display the response in the answerDiv
-     console.log(response);
-   },
-   error: function() {
-     // Hide the loading spinner on error
-     // $('#loading-spinner').hide();
+    var fileInput = $('#fileUpload')[0];
+    var file = fileInput.files[0];
+    var formData = await extractTextFromPDF(file);
+    var text = formData + "";
+    console.log(text);
 
-     // Handle the error if needed
-     // ...
-   }
-         });
-     });
+    $.ajax({
+      type: 'POST',
+      url: '/pdf',
+      data: JSON.stringify({ pdfData: text }),
+      processData: false,
+      contentType: "application/json",
+      success: function(response) {
+        console.log(response);
+      },
+      error: function() {
+        // Handle the error if needed
+      }
     });
+  });
+});
+
 </script>
 
 <div class="container">
@@ -83,6 +113,7 @@ in simple terms.  -->
             action="/process-pdf"
             method="post"
             target="hidden-iframe-pdf"
+            enctype="multipart/form-data"
           >
             <input
               type="file"
