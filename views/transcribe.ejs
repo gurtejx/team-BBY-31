@@ -8,6 +8,9 @@ in simple terms.  -->
     line-height: 1.5;
     padding: 10px;
   }
+  body{
+    background-color: #191923;
+  }
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
@@ -116,8 +119,8 @@ $(document).ready(function() {
 </script>
 
 <div class="container">
-  <h1 class="my-4 text-center">Explain your Document</h1>
-  <p class="mobile-text">
+  <h1 class="my-4 text-center" style="color: #fbfef9;">Explain your Document</h1>
+  <p class="mobile-text" style="color: #fbfef9;">
     You will upload a document in PDF format and we will take the document,
     demistify it through simplification and reducing the legal jargon so you can
     make better sense of it in a more digestable form!
@@ -128,8 +131,8 @@ $(document).ready(function() {
     <div class="col-lg-8">
       <div>
         <!-- File Upload -->
-        <div class="form-group">
-          <label for="fileUpload" class="mobile-text"
+        <div class="form-group" style="color: #fbfef9;">
+          <label for="fileUpload" class="mobile-text" style="color: #fbfef9;"
             >Upload PDF Document:
             <i
               >It should be primarily text. We can't guarantee the quality or
@@ -154,7 +157,7 @@ $(document).ready(function() {
               id="fileUpload"
               accept=".pdf"
             />
-            <button type="submit" class="btn btn-danger">Submit</button>
+            <button type="submit" class="btn" style="background-color: #a31621;color: #fbfef9; margin-top: 3px;">Submit</button>
           </form>
         </div>
 
@@ -166,18 +169,18 @@ $(document).ready(function() {
         >
             <!-- Question -->
         <div class="form-group">
-            <label for="questionInput">What is your question?:</label>
+            <label for="questionInput" style="color: #fbfef9;">What is your question?:</label>
             <textarea class="form-control" id="questionInput" rows="3"></textarea>
           </div>
   
           <!-- Answer -->
           <div class="form-group">
-            <label for="answerInput">Answer:</label>
+            <label for="answerInput" style="color: #fbfef9;">Answer:</label>
             <div class="form-control" id="answerInput" rows="3"></div>
           </div>
   
           <div class="form-group text-center">
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn" style="background-color: #a31621; color: #fbfef9;">Submit</button>
           </div>
         </form>
         
