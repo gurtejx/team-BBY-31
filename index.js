@@ -629,6 +629,11 @@ app.get('/setNewPassword/:id/:token', async (req, res) => {
   }
 });
 
+app.post('/pdf', async (req, res) => {
+  console.log(req.body);
+  res.send("communicated");
+})
+
 app.use(express.static(__dirname + "/public"));
 
 // 404 error

@@ -3,46 +3,114 @@
 May be better just tp have our AI read the document uploaded and explain it in one box
 in simple terms.  -->
 <style>
-    .mobile-text {
-      font-size: 14px;
-      line-height: 1.5;
-      padding: 10px;
-    }
-  </style>
+  .mobile-text {
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 10px;
+  }
+</style>
+
+<script>
+  $(document).ready(function() {
+     console.log('script loaded');
+         $('#uploadForm').submit(function(event) {
+             event.preventDefault(); // Prevent default form submission
+
+             var fileInput = $('#fileUpload')[0];
+             var file = fileInput.files[0];
+
+             var formData = new FormData();
+             formData.append('pdfFile', file);
+
+             console.log('event listener worked');
+
+             // Send an AJAX request to the server
+     $.ajax({
+   type: 'POST',
+   url: '/pdf',
+   data: formData,
+   beforeSend: function() {
+     // Show the loading spinner
+     // $('#loading-spinner').show();
+   },
+   success: function(response) {
+     // Hide the loading spinner
+     // $('#loading-spinner').hide();
+
+     // Display the response in the answerDiv
+     console.log(response);
+   },
+   error: function() {
+     // Hide the loading spinner on error
+     // $('#loading-spinner').hide();
+
+     // Handle the error if needed
+     // ...
+   }
+         });
+     });
+    });
+</script>
 
 <div class="container">
-    <h1 class="my-4 text-center">Explain your Document</h1>
-    <p class="mobile-text">You will upload a document in PDF format and we will take the document, demistify it 
-    through simplification and reducing the legal jargon so you can make better sense of 
-    it in a more digestable form!</p>
+  <h1 class="my-4 text-center">Explain your Document</h1>
+  <p class="mobile-text">
+    You will upload a document in PDF format and we will take the document,
+    demistify it through simplification and reducing the legal jargon so you can
+    make better sense of it in a more digestable form!
+  </p>
 
-    <!-- Using bootstrap grid format to center this -->
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <form>
-                <!-- File Upload -->
-                <div class="form-group">
-                    <label for="fileUpload" class="mobile-text">Upload PDF Document: <i>It should be primarily text. We can't guarantee the quality or performance if the pdf is filled with images!</i></label>
-                    <input type="file" class="form-control-file" id="fileUpload" accept=".pdf">
-                </div>
-
-                <!-- Question -->
-                <div class="form-group">
-                    <label for="questionInput">What is your question?:</label>
-                    <textarea class="form-control" id="questionInput" rows="3"></textarea>
-                </div>
-
-                <!-- Answer -->
-                <div class="form-group">
-                    <label for="answerInput">Answer:</label>
-                    <textarea class="form-control" id="answerInput" rows="3"></textarea>
-                </div>
-
-                <div class="form-group text-center">
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                </div>
-            </form>
+  <!-- Using bootstrap grid format to center this -->
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div>
+        <!-- File Upload -->
+        <div class="form-group">
+          <label for="fileUpload" class="mobile-text"
+            >Upload PDF Document:
+            <i
+              >It should be primarily text. We can't guarantee the quality or
+              performance if the PDF is filled with images!</i
+            ></label
+          >
+          <iframe
+            id="hidden-iframe-pdf"
+            name="hidden-iframe-pdf"
+            style="display: none"
+          ></iframe>
+          <form
+            id="uploadForm"
+            action="/process-pdf"
+            method="post"
+            target="hidden-iframe-pdf"
+          >
+            <input
+              type="file"
+              class="form-control-file"
+              id="fileUpload"
+              accept=".pdf"
+            />
+            <button type="submit" class="btn btn-danger">Submit</button>
+          </form>
         </div>
+
+        <!-- Question -->
+        <div class="form-group">
+          <label for="questionInput">What is your question?:</label>
+          <textarea class="form-control" id="questionInput" rows="3"></textarea>
+        </div>
+
+        <!-- Answer -->
+        <div class="form-group">
+          <label for="answerInput">Answer:</label>
+          <textarea class="form-control" id="answerInput" rows="3"></textarea>
+        </div>
+
+        <div class="form-group text-center">
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 <%- include("templates/footer") %>
