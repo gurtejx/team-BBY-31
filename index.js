@@ -602,7 +602,7 @@ app.post('/pdf', async (req, res) => {
 
   try {
     // Make an HTTP POST request to the Python backend
-    const response = await axios.post('http://lodxzqsita.eu10.qoddiapp.com/pdf', {
+    const response = await axios.post('http://lodxzqsita.eu10.qoddiapp.com/setupPDF', {
       data: pdfData
     });
 
@@ -618,10 +618,11 @@ app.post('/pdf', async (req, res) => {
 
 app.post('/askQuestion', async(req, res) => {
   try {
-    // Make an HTTP POST request to the Python backend
+    // Make an HTTP POST request to the Python backend // actualURL = 'http://lodxzqsita.eu10.qoddiapp.com/askQuestion'
     const response = await axios.post('http://lodxzqsita.eu10.qoddiapp.com/askQuestion', {
       question: req.body.question
     });
+    console.log(response);
     res.send("question Asked");
   } catch (error) {
     console.error(error);
