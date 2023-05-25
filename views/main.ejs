@@ -166,34 +166,35 @@
 
         // Reset counter if question input is not empty
         counter = 0;
-        
-    // Send an AJAX request to the server
-    $.ajax({
-  type: 'POST',
-  url: '/respond',
-  data: { prompt: question, language: language },
-  beforeSend: function() {
-    // Show the loading spinner
-    // $('#loading-spinner').show();
-  },
-  success: function(response) {
-    // Hide the loading spinner
-    // $('#loading-spinner').hide();
 
-    // Display the response in the answerDiv
-    $('#answer').text(response.answer);
-    console.log(response.answer);
-  },
-  error: function() {
-    // Hide the loading spinner on error
-    // $('#loading-spinner').hide();
+        // Send an AJAX request to the server
+        $.ajax({
+          type: 'POST',
+          url: '/respond',
+          data: { prompt: question, language: language },
+          beforeSend: function () {
+            // Show the loading spinner
+            // $('#loading-spinner').show();
+          },
+          success: function (response) {
+            // Hide the loading spinner
+            // $('#loading-spinner').hide();
 
-    // Handle the error if needed
-    // ...
-  }
-});
+            // Display the response in the answerDiv
+            $('#answer').text(response.answer);
+            console.log(response.answer);
+          },
+          error: function () {
+            // Hide the loading spinner on error
+            // $('#loading-spinner').hide();
 
-  }) })
+            // Handle the error if needed
+            // ...
+          }
+        });
+
+      })
+    })
   </script>
 
   <!-- Content -->
