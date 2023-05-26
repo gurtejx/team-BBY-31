@@ -11,6 +11,9 @@ in simple terms.  -->
   body{
     background-color: #191923;
   }
+  #answerInput {
+    height: 50px;
+  }
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
@@ -60,11 +63,15 @@ $(document).ready(function() {
   console.log("script loaded");
 
   $('#fileUpload').change(function() {
+    console.log("File Uploaded!");
       // Get the form element
       var form = $('#uploadForm');
+      // Hide the warning message
+      $('#warningMsg').hide();
       
       // Submit the form
       form.submit();
+
     });
 
   $('#uploadForm').submit(async function(event) {
@@ -141,7 +148,7 @@ $(document).ready(function() {
       <div>
         <!-- File Upload -->
         <div class="form-group" style="color: #fbfef9;">
-          <label for="fileUpload" class="mobile-text" style="color: #fbfef9;"
+          <label for="fileUpload" class="mobile-text" style="color: #fbfef9;" id="warningMsg"
             >Upload PDF Document:
             <i
               >It should be primarily text. We can't guarantee the quality or
