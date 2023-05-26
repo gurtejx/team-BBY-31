@@ -16,24 +16,24 @@ Team BBY-31
 
 ## Technologies
 
-# Frontend
+Frontend:
 HTML 
 CSS
 Bootstrap v5.3.x/ v 5.1.3
 
-# Backend
+Backend:
 JavaScript 
 Node v19.3.0
 Python 
 llama_index v0.6.8
 langchain v0.0.172
 
-# Database
+Database:
 Mongodb v6.0.5
 
 
 ## Files
-
+```
 .
 ├── node_modules
 │   ├── @hapi
@@ -699,7 +699,7 @@ Mongodb v6.0.5
 │   └── img
 └── views
     └── templates
-
+```
 
 
 
@@ -721,17 +721,17 @@ Create a fork of our repo
 Launch VS Code and navigate to pop it open in the project directory is located. 
 
 Install Project Dependencys: Pop open the terminal in VSCode and since it is already there it should be no issue on typing out the following command to get the dependencies implemented. 
-
+```
 npm install
-
+```
 Prepare environment variables: Create an .env file in the project's root directory. Add any required variables to the .env file and keep it updated with the correct keys.
 
 Set up MongoDB and use the values in our .env file to have everything configured. 
 
 Pop open the terminal and post the following before entering to run our project.
-
+```
  node index.js
- 
+ ```
 This will allow you to access our localhost link on any browser you have: http://localhost:3020.
 
 
