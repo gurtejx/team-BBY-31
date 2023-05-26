@@ -113,6 +113,19 @@
         event.preventDefault(); // Prevent default form submission behavior
 
         $('#helpMsg').hide();
+        
+        var answerDiv = $('#answer');
+      
+        answerDiv.css({
+          'display': 'flex',
+          'align-items': 'center',
+          'justify-content': 'center'
+        });
+
+        // Show the loader spinner
+        answerDiv.html('<div class="spinner-border text-danger" role="status"><span class="visually-hidden">Loading...</span></div>');
+      
+
         console.log("help message hidden");
 
         var question = $('#question-input').val();
@@ -158,6 +171,7 @@
             // $('#loading-spinner').hide();
 
             // Display the response in the answerDiv
+            $('#answer').css('display', 'block');
             $('#answer').text(response.answer);
             console.log(response.answer);
           },
