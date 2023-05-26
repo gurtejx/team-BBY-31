@@ -112,6 +112,9 @@
       $('#question-form').submit(function (event) {
         event.preventDefault(); // Prevent default form submission behavior
 
+        $('#helpMsg').hide();
+        console.log("help message hidden");
+
         var question = $('#question-input').val();
         var language = $('#formLanguageSelect').val();
 
@@ -178,7 +181,7 @@
         <iframe id="hidden-iframe" name="hidden-iframe" style="display:none;"></iframe>
         <h1 class="text-center" style="color: #fbfef9;">Welcome to LegallyWise AI!</h1>
         </br>
-        <p class="text-center" style="color: #fbfef9;">Please submit your legal inquiry in the designated text field
+        <p class="text-center" style="color: #fbfef9;" id="helpMsg">Please submit your legal inquiry in the designated text field
           below and anticipate the response, which will be provided in the larger text box with a slight delay.</p>
         <form id="question-form" action='/respond' method='post' target="hidden-iframe">
           <div class="row justify-content-center">
