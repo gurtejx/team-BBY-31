@@ -1,29 +1,28 @@
-<%- include("templates/header") %> 
+<%- include("templates/header") %>
+
 <body style="background-color: #191923;">
-<div class="container mx-auto" style="color: #fbfef9;">
-    <h2 class="text-center">Set Security Question</h2>
-    <form action="/setSecurityQuestion" method="post" class="text-center">
-        <div class="form-group">
-            <label for="question">Select a Security Question:</label><br>
-            <select name="question" id="question">
-                <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
-                <option value="What was your childhood nickname?">What was your childhood nickname?</option>
-                <option value="What is your favorite hobby?">What is your favorite hobby?</option>
-                <option value="What was the name of your first pet?">What was the name of your first pet?</option>
-                <option value="What city were you born in?">What city were you born in?</option>
-            </select><br><br>
-            <label for="answer">Enter your Answer:</label><br>
-            <input type="text" id="answer" name="answer" class="m-1"><br>
-        </div>
-        <input type="submit" value="Submit" class="btn" style="background-color: #a31621; color: #fbfef9;">
-    </form>
+    <div class="container mx-auto" style="color: #fbfef9;">
+        <h2 class="text-center">Set Security Question</h2>
+        <form action="/setSecurityQuestion" method="post" class="text-center">
+            <div class="form-group">
+                <label for="question">Select a Security Question:</label><br>
+                <select name="question" id="question">
+                    <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                    <option value="What was your childhood nickname?">What was your childhood nickname?</option>
+                    <option value="What is your favorite hobby?">What is your favorite hobby?</option>
+                    <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                    <option value="What city were you born in?">What city were you born in?</option>
+                </select><br><br>
+                <label for="answer">Enter your Answer:</label><br>
+                <input type="text" id="answer" name="answer" class="m-1"><br>
+            </div>
+            <input type="submit" value="Submit" class="btn" style="background-color: #a31621; color: #fbfef9;">
+        </form>
 
-    <!-- if errorVariable = true, display error message -->
-    <% if (req.query.blank) { %>
+        <!-- if errorVariable = true, display error message -->
+        <% if (req.query.blank) { %>
         <p style="color: red;">Answer cannot be blank. Please try again.</p>
-    <% } %>
-</div>
+        <% } %>
+    </div>
 </body>
-<%- include("templates/footer") %> 
-
-  
+<%- include("templates/footer") %>

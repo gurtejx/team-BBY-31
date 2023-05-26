@@ -703,9 +703,9 @@ Mongodb v6.0.5
 
 
 
-## Installation
+# Installation
 
-# Prerequisites
+Prerequisites
 Before you start, ensure you have these prerequisites installed:
 
 Node.js & npm: You need Node.js installed to run this app. Check if you have it installed by running node -v. If not, you can download Node.js from their site. 
@@ -736,7 +736,7 @@ This will allow you to access our localhost link on any browser you have: http:/
 
 
 
-## Features
+# Features
 
 Consult LegallyWise AI: Click the Consult LegallyWise AI button at the homepage or the logo located on the navbar. This will take you to a room where you can ask a question and get a response that has come from the data the AI has been trained on. You may also choose a language before you click submit to get a response in a language you feel more comfortable in or have a better understanding.
 
@@ -749,9 +749,7 @@ Contact: This can be accessed by clicking 'Contact' on the navbar and will take 
 About: This can be accessed by clicking 'About' on the navbar and will take the user to a page where the app is explained a little and some information about the team that worked on the project.
 
 
-
-
-## Credits
+# Credits
 OpenAI. (n.d.). OpenAI. https://openai.com/
 
 Welcome to PyPDF2 &mdash; PyPDF2 documentation. (n.d.). Welcome to PyPDF2 &Mdash; PyPDF2 Documentation. https://pypdf2.readthedocs.io/en/3.0.0/
@@ -759,5 +757,3 @@ Welcome to PyPDF2 &mdash; PyPDF2 documentation. (n.d.). Welcome to PyPDF2 &Mdash
 C. (n.d.). API_documentation/EN.md at master · canlii/API_documentation. GitHub. https://github.com/canlii/API_documentation
 
 Welcome to LangChain — 🦜🔗 LangChain 0.0.181. (2023, May 26). Welcome to LangChain — 🦜🔗 LangChain 0.0.181. https://python.langchain.com/en/latest/index.html
-
-
