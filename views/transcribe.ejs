@@ -11,6 +11,17 @@ in simple terms.  -->
   body{
     background-color: #191923;
   }
+  #questionInput {
+    font-size: 14px;
+    border: 2px solid #392f5a;
+  }
+  #answerInput {
+      border: 2px solid #392f5a;
+      font-size: 14px;
+      height: 200px;
+      margin-bottom: 30px;
+      overflow: auto;
+  }
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
@@ -56,8 +67,49 @@ function extractTextFromPDF(file) {
   });
 }
 
+function submitSummaryReq(event) {
+    event.preventDefault(); // Prevent default form submission
+    console.log("Summarize Request Made")
+
+    var fileInput = $('#fileUpload')[0];
+    var file = fileInput.files[0];
+    if (file == null) {
+        console.log("No file uploaded");
+        return;
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: '/askQuestion',
+      data: JSON.stringify({ ques : "Summarize the document and simplify the jargon" }),
+      processData: false,
+      contentType: "application/json",
+      success: function(response) {
+        console.log(response.reply);
+        $('#answerInput').text(response.reply);
+      },
+      error: function() {
+        console.log("error making request");
+        // Handle the error if needed
+      }
+    });
+}
+
 $(document).ready(function() {
   console.log("script loaded");
+
+  $('#fileUpload').change(function() {
+    console.log("File Uploaded!");
+      // Get the form element
+      var form = $('#uploadForm');
+      // Hide the warning message
+      $('#warningMsg').hide();
+      
+      // Submit the form
+      form.submit();
+
+    });
+
   $('#uploadForm').submit(async function(event) {
     event.preventDefault(); // Prevent default form submission
 
@@ -65,7 +117,7 @@ $(document).ready(function() {
     var file = fileInput.files[0];
     var formData = await extractTextFromPDF(file);
     var text = formData + "";
-    console.log(text);
+    console.log("Text Extracted");
 
     $.ajax({
       type: 'POST',
@@ -132,7 +184,7 @@ $(document).ready(function() {
       <div>
         <!-- File Upload -->
         <div class="form-group" style="color: #fbfef9;">
-          <label for="fileUpload" class="mobile-text" style="color: #fbfef9;"
+          <label for="fileUpload" class="mobile-text" style="color: #fbfef9;" id="warningMsg"
             >Upload PDF Document:
             <i
               >It should be primarily text. We can't guarantee the quality or
@@ -157,7 +209,7 @@ $(document).ready(function() {
               id="fileUpload"
               accept=".pdf"
             />
-            <button type="submit" class="btn" style="background-color: #a31621;color: #fbfef9; margin-top: 3px;">Submit</button>
+            <!-- <button type="submit" class="btn" style="background-color: #a31621;color: #fbfef9; margin-top: 3px;">Submit</button> -->
           </form>
         </div>
 
@@ -170,7 +222,7 @@ $(document).ready(function() {
             <!-- Question -->
         <div class="form-group">
             <label for="questionInput" style="color: #fbfef9;">What is your question?:</label>
-            <textarea class="form-control" id="questionInput" rows="1"></textarea>
+            <textarea class="form-control" id="questionInput" rows="1" style="white-space: nowrap;"></textarea>
           </div>
   
           <!-- Answer -->
@@ -180,7 +232,8 @@ $(document).ready(function() {
           </div>
   
           <div class="form-group text-center">
-            <button type="submit" class="btn" style="background-color: #a31621; color: #fbfef9; margin-bottom: 50px;">Submit</button>
+            <button type="submit" class="btn" style="background-color: #a31621; color: #fbfef9; margin-bottom: 50px;" onclick="submitSummaryReq(event)">Summarize</button>
+            <button type="submit" class="btn" style="background-color: #a31621; color: #fbfef9; margin-bottom: 50px;" id="askBtn">Ask</button>
           </div>
         </form>
         
