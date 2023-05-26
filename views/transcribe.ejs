@@ -11,9 +11,17 @@ in simple terms.  -->
   body{
     background-color: #191923;
   }
-  #answerInput {
-    height: 50px;
+  #questionInput {
+    font-size: 14px;
+    border: 2px solid #392f5a;
   }
+  #answerInput {
+      border: 2px solid #392f5a;
+      font-size: 14px;
+      height: 200px;
+      margin-bottom: 30px;
+      overflow: auto;
+    }
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
@@ -196,7 +204,7 @@ $(document).ready(function() {
           </div>
   
           <div class="form-group text-center">
-            <button type="submit" class="btn" style="background-color: #a31621; color: #fbfef9; margin-bottom: 50px;">Submit</button>
+            <button type="submit" class="btn" style="background-color: #a31621; color: #fbfef9; margin-bottom: 50px;">Ask</button>
           </div>
         </form>
         
