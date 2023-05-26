@@ -18,9 +18,10 @@
             flex-direction: row;
         }
 
-        .nav-item {
+        .nav-item{
             margin-right: 8px;
         }
+
 
         /* New CSS class for sticky header */
         .sticky-top {
@@ -31,9 +32,13 @@
         #header {
             background-color: #191923;
         }
-    
-        #navbarLogout {
-            display: none;
+        @media (max-width: 576px) {
+            .nav-item{
+                font-size: 80%;
+                margin-right: 5px;
+            }
+
+        
         }
     
         
@@ -43,13 +48,22 @@
         $(document).ready(function () {
             $('.navbar').addClass('sticky-top');
         });
+        $(document).ready(() => {
+            $.get('/login-status', function(data) {
+                var logoutButton = document.getElementById('navbarLogout');
+                 if (data.loggedIn) {
+                    // User is logged in, show the logout button
+                    logoutButton.style.display = '';
+                 } 
+        });
+        });
     </script>
 </head>
 
 <body>
     
     <nav class="navbar navbar-expand-sm navbar-light" style="background-color: #191923;" id="header">
-        <a class="navbar-brand mr-4" href="/main">
+        <a class="navbar-brand mr-3" href="/main">
             <img src="/img/logo.png" alt="Logo" width="40" height="40">
         </a>
         <ul class="navbar-nav">
@@ -76,16 +90,4 @@
     
     
 
-    <script>
-        $(document).ready(() => {
-            $.get('/login-status', function(data) {
-                var logoutButton = document.getElementById('navbarLogout');
-                 if (data.loggedIn) {
-                    // User is logged in, show the logout button
-                    logoutButton.style.display = '';
-                 } 
-        });
-        });
-    </script>
-</body>
-</html>
+   
