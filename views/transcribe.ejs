@@ -21,7 +21,7 @@ in simple terms.  -->
       height: 200px;
       margin-bottom: 30px;
       overflow: auto;
-    }
+  }
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
@@ -65,6 +65,34 @@ function extractTextFromPDF(file) {
     };
     reader.readAsArrayBuffer(file);
   });
+}
+
+function submitSummaryReq(event) {
+    event.preventDefault(); // Prevent default form submission
+    console.log("Summarize Request Made")
+
+    var fileInput = $('#fileUpload')[0];
+    var file = fileInput.files[0];
+    if (file == null) {
+        console.log("No file uploaded");
+        return;
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: '/askQuestion',
+      data: JSON.stringify({ ques : "Summarize the document and simplify the jargon" }),
+      processData: false,
+      contentType: "application/json",
+      success: function(response) {
+        console.log(response.reply);
+        $('#answerInput').text(response.reply);
+      },
+      error: function() {
+        console.log("error making request");
+        // Handle the error if needed
+      }
+    });
 }
 
 $(document).ready(function() {
@@ -204,7 +232,8 @@ $(document).ready(function() {
           </div>
   
           <div class="form-group text-center">
-            <button type="submit" class="btn" style="background-color: #a31621; color: #fbfef9; margin-bottom: 50px;">Ask</button>
+            <button type="submit" class="btn" style="background-color: #a31621; color: #fbfef9; margin-bottom: 50px;" onclick="submitSummaryReq(event)">Summarize</button>
+            <button type="submit" class="btn" style="background-color: #a31621; color: #fbfef9; margin-bottom: 50px;" id="askBtn">Ask</button>
           </div>
         </form>
         
