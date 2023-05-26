@@ -81,7 +81,7 @@ $(document).ready(function() {
     var file = fileInput.files[0];
     var formData = await extractTextFromPDF(file);
     var text = formData + "";
-    console.log(text);
+    console.log("Text Extracted");
 
     $.ajax({
       type: 'POST',
