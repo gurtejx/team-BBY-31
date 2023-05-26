@@ -58,6 +58,15 @@ function extractTextFromPDF(file) {
 
 $(document).ready(function() {
   console.log("script loaded");
+
+  $('#fileUpload').change(function() {
+      // Get the form element
+      var form = $('#uploadForm');
+      
+      // Submit the form
+      form.submit();
+    });
+
   $('#uploadForm').submit(async function(event) {
     event.preventDefault(); // Prevent default form submission
 
@@ -157,7 +166,7 @@ $(document).ready(function() {
               id="fileUpload"
               accept=".pdf"
             />
-            <button type="submit" class="btn" style="background-color: #a31621;color: #fbfef9; margin-top: 3px;">Submit</button>
+            <!-- <button type="submit" class="btn" style="background-color: #a31621;color: #fbfef9; margin-top: 3px;">Submit</button> -->
           </form>
         </div>
 
