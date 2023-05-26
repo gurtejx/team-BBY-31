@@ -28,7 +28,7 @@
       text-align: center;
     }
 
-    #question-input {
+    /* #question-input {
       width: 100%;
       max-width: 400px;
       height: 100px;
@@ -38,7 +38,7 @@
       border-radius: 10px;
       margin: 0 auto 20px auto;
       display: block;
-    }
+    } */
 
     #answer {
       border: 2px solid #392f5a;
@@ -72,6 +72,13 @@
       height: 80%;
     }
 
+    /* Adjust the dropdown width for small screens */
+    @media (max-width: 767px) {
+      .form-control.responsive-dropdown {
+        width: 50%;
+      }
+    }
+
     @media (max-width: 600px) {
       #easter-egg {
         /* The aspect ratios below are for mobile view only. */
@@ -83,7 +90,7 @@
     #formLanguageSelect {
       font-size: 14px;
       border: 1px solid #fbfbfb;
-      border-radius: 10px;
+      /* border-radius: 10px; */
       margin: 0 auto 20px auto;
       display: block;
     }
@@ -104,6 +111,9 @@
 
       $('#question-form').submit(function (event) {
         event.preventDefault(); // Prevent default form submission behavior
+
+        $('#helpMsg').hide();
+        console.log("help message hidden");
 
         var question = $('#question-input').val();
         var language = $('#formLanguageSelect').val();
@@ -171,7 +181,7 @@
         <iframe id="hidden-iframe" name="hidden-iframe" style="display:none;"></iframe>
         <h1 class="text-center" style="color: #fbfef9;">Welcome to LegallyWise AI!</h1>
         </br>
-        <p class="text-center" style="color: #fbfef9;">Please submit your legal inquiry in the designated text field
+        <p class="text-center" style="color: #fbfef9;" id="helpMsg">Please submit your legal inquiry in the designated text field
           below and anticipate the response, which will be provided in the larger text box with a slight delay.</p>
         <form id="question-form" action='/respond' method='post' target="hidden-iframe">
           <div class="row justify-content-center">
@@ -190,8 +200,10 @@
                 <option>Arabic</option>
               </select>
             </div>
-            <input id="question-input" name="prompt" type="text" class="form-control col-sm-6" style="height: 10%;"
-              placeholder="Enter a legal question">
+            <div class="form-group">
+              <label for="questionInput" style="color: #fbfef9;">What is your question?</label>
+              <textarea class="form-control" id="question-input" rows="1" style="white-space: nowrap;"></textarea>
+            </div>
             <div>
               <button type="submit" class="btn btn-primary d-block mx-auto"
                 style="background-color: #a31621; border-color: #a31621;margin-bottom: 70px;">Ask a Question</button>
