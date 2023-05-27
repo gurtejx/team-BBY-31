@@ -28,6 +28,14 @@
             top: 0;
             z-index: 1000;
         }
+
+        #header {
+            background-color: #191923;
+        }
+
+        #navbarLogout {
+            display: none;
+        }
     </style>
     <script>
         // JavaScript code to add sticky behavior to the header
@@ -54,5 +62,26 @@
             <li class="nav-item">
                 <a class="nav-link" style="color: #a31621; font-weight: bold;" href="/contact">Contact</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" style="color: #a31621; font-weight: bold;" href="/about">About</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="navbarLogout" style="color: #a31621; font-weight: bold; display: none;"
+                    href="/signout">Logout</a>
+            </li>
         </ul>
     </nav>
+
+    <script>
+        $(document).ready(() => {
+            $.get('/login-status', function (data) {
+                var logoutButton = document.getElementById('navbarLogout');
+                if (data.loggedIn) {
+                    // User is logged in, show the logout button
+                    logoutButton.style.display = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,19 +1,20 @@
-<%- include("templates/header") %> 
-    <body style="background-color: #191923;">
+<%- include("templates/header") %>
+
+<body style="background-color: #191923;">
     <h3 style=" text-align: center; color: #fbfef9;">Answer your security question</h3>
     <form action='/verifySecurityQuestion' method='post' style="display: flex; flex-direction: column;">
         <label for="answer"><%= req.session.question %></label><br>
         <input name='answer' type='text' placeholder='Answer' class="p-2 mb-2">
         <button class="btn p-2" style=" color: #fbfef9; padding: 10px; background-color: #a31621;">Submit</button>
     </form>
-        
+
     <!-- if errorVariable = true, display error message -->
     <% if (req.query.blank) { %>
-        <p style="color: red;">Answer cannot be blank. Please try again.</p>
+    <p style="color: red;">Answer cannot be blank. Please try again.</p>
     <% } %>
 
     <% if (req.query.incorrect) { %>
-        <p style="color: red;">Incorrect answer. Please try again.</p>
+    <p style="color: red;">Incorrect answer. Please try again.</p>
     <% } %>
-    </body>
-<%- include("templates/footer") %> 
+</body>
+<%- include("templates/footer") %>

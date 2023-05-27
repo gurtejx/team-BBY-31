@@ -1,184 +1,199 @@
 <%- include("templates/header") %>
-<!-- 
-  <script src="/app.js"></script> -->
+<style>
+  body {
+    background-color: #191923;
+    color: #fbfef9;
+    font-family: Arial, sans-serif;
+  }
 
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+  }
 
-  <!-- <link rel="stylesheet" href="/public/css/main.css"> -->
+  h1 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 30px;
+  }
 
-  <style>
-    body{
-      background-color: #191923;
-    }
-    #answer {
-      border: 2px solid #392f5a;
-      padding: 10px;
-      font-size: 20px;
-      font-weight: bold;
-      min-height: 200px;
-      z-index: 1;
-    }
-    #question-input {
-      width: 50%;
-      height: 100px;
-      font-size: 20px;
-      padding: 20px;
-      border: 2px solid #392f5a;
-      border-radius: 10px;
-      margin: 0 auto 20px auto;
-      display: block;
-    }
-    button[type="submit"] {
-      background-color: #1215b8;
-      border-color: #9dd9d2;
-      color: #e0dfd5;
-      font-size: 20px;
-      font-weight: bold;
-      padding: 10px 30px;
-    }
-    #easter-egg {
+  form {
+    text-align: center;
+  }
+
+  #answer {
+    border: 2px solid #392f5a;
+    padding: 10px;
+    color: #fbfef9;
+    font-size: 14px;
+    height: 200px;
+    margin-bottom: 30px;
+    overflow: auto;
+  }
+
+  #loading-spinner {
+    background-image: url('/img/loading.gif');
+    background-repeat: no-repeat;
+    background-size: cover;
+    text-align: center;
+    margin: 20px auto;
+    width: 100px;
+    height: 100px;
+    display: none;
+  }
+
+  #easter-egg {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     object-fit: contain;
     z-index: 2;
-    width: 80%; 
+    width: 80%;
     height: 80%;
-}
-
-@media (max-width: 600px) {
-    #easter-egg {
-      /* The aspect ratios below are for mobile view only. */
-        width: 80%; 
-        height: 80%; 
-    }
-}
-
-
-    
-  </style>
-
-  <script>
-    $(document).ready(function() {
-    var counter = 0; // Initialize the counter
-
-    // // Hide the easter egg when clicked
-    // $('#easter-egg').click(function() {
-    //     $(this).hide();
-    // });
-
-    var counter = 0;
-var timeoutDuration = 3000; // 3 seconds;
-var easterEggVisible = false;
-
-$('#question-form').submit(function(event) {
-    event.preventDefault(); // Prevent default form submission behavior
-
-    var question = $('#question-input').val();
-    var language = $('#formLanguageSelect').val();
-
-    // Check if question input is empty
-    if (!question.trim()) {
-        // Increment counter and check if it's 5
-        if (++counter === 5) {
-            // Show the easter egg if it's not already visible
-            if (!easterEggVisible) {
-                // Hide the body content
-                $('#container').hide();
-                easterEggVisible = true;
-                $('#easter-egg').show(); // Show the easter egg after hiding other elements
-            }
-
-            // Reset counter and show body content after timeoutDuration
-            setTimeout(function() {
-                counter = 0;
-                easterEggVisible = false;
-                $('#easter-egg').hide();
-                $('#container').show();
-            }, timeoutDuration);
-        }
-        return; // Return to avoid making the ajax request
-    }
-
-    // Reset counter if question input is not empty
-    counter = 0;
-
-    // Send an AJAX request to the server
-    $.ajax({
-        type: 'POST',
-        url: '/respond',
-        data: { prompt: question, language: language },
-        success: function(response) {
-            // Display the response in the answerDiv
-            $('#answer').text(response.answer);
-        }
-    });
-  }) })
-  </script>
-
-<!-- $('#question-form').submit(function(event) {
-  event.preventDefault(); // Prevent default form submission behavior
-
-  var question = $('#question-input').val();
-  var language = $('#formLanguageSelect').val();
-
-  // Check if question input is empty
-  if (!question.trim()) {
-      // Increment counter and check if it's 5
-      if (++counter === 5) {
-          // Show the easter egg and reset counter
-          $('#easter-egg').show();
-          counter = 0;
-      }
-      return; // Return to avoid making the ajax request
   }
 
-  // Reset counter if question input is not empty
-  counter = 0;
+  /* Adjust the dropdown width for small screens */
+  @media (max-width: 767px) {
+    .form-control.responsive-dropdown {
+      width: 50%;
+    }
+  }
 
-  // Send an AJAX request to the server
-  $.ajax({
-      type: 'POST',
-      url: '/respond',
-      data: { prompt: question, language: language },
-      success: function(response) {
-          // Display the response in the answerDiv
-          $('#answer').text(response.answer);
+  @media (max-width: 600px) {
+    #easter-egg {
+      /* The aspect ratios below are for mobile view only. */
+      width: 80%;
+      height: 80%;
+    }
+  }
+
+  #formLanguageSelect {
+    font-size: 14px;
+    border: 1px solid #fbfbfb;
+    margin: 0 auto 20px auto;
+    display: block;
+  }
+</style>
+
+<script>
+  $(document).ready(function () {
+    var counter = 0; // Initialize the counter
+    var timeoutDuration = 3000; // 3 seconds;
+    var easterEggVisible = false;
+
+    $('#question-form').submit(function (event) {
+      event.preventDefault(); // Prevent default form submission behavior
+
+      $('#helpMsg').hide();
+      var answerDiv = $('#answer');
+
+      answerDiv.css({
+        'display': 'flex',
+        'align-items': 'center',
+        'justify-content': 'center'
+      });
+
+      // Show the loader spinner
+      answerDiv.html(
+        '<div class="spinner-border text-danger" role="status"><span class="visually-hidden">Loading...</span></div>'
+      );
+      console.log("help message hidden");
+
+      var question = $('#question-input').val();
+      var language = $('#formLanguageSelect').val();
+
+      // Check if question input is empty
+      if (!question.trim()) {
+        // Increment counter and check if it's 5
+        if (++counter === 5) {
+          // Show the easter egg if it's not already visible
+          if (!easterEggVisible) {
+            // Hide the body content
+            $('#container').hide();
+            easterEggVisible = true;
+            $('#easter-egg').show(); // Show the easter egg after hiding other elements
+          }
+
+          // Reset counter and show body content after timeoutDuration
+          setTimeout(function () {
+            counter = 0;
+            easterEggVisible = false;
+            $('#easter-egg').hide();
+            $('#container').show();
+          }, timeoutDuration);
+        }
+        return; // Return to avoid making the ajax request
       }
-  });
-});
-}); -->
 
-  <!-- Content -->
-  <div class="container-fluid" id="container">
-    <div class="row">
-      <div class="col-sm-12">
-        <iframe id="hidden-iframe" name="hidden-iframe" style="display:none;"></iframe>
-        <h1 class="text-center my-5" style="color: #fbfef9;">Welcome to LegallyWise AI!</h1>
-        <form id="question-form" action='/respond' method='post' target="hidden-iframe">
-          <input id="question-input" name="prompt" type="text" class="form-control" placeholder="Enter your legal question">
-          <div class="form-group">
-              <label for="formLanguageSelect" style="color: #fbfef9;" id="languageLabel">Select Language</label>
-              <select class="form-control" id="formLanguageSelect" name="language">
-                <option>English</option>
-                <option>French</option>
-                <option>Spanish</option>
-                <option>Arabic</option>
-              </select>
-          </div>
-          <div>
-            <button type="submit" class="btn btn-primary d-block mx-auto" style="background-color: #a31621; border-color: #a31621;">Ask a Question</button>
-          </div>
-        </form>
+      // Reset counter if question input is not empty
+      counter = 0;
+
+      // Send an AJAX request to the server
+      $.ajax({
+        type: 'POST',
+        url: '/respond',
+        data: {
+          prompt: question,
+          language: language
+        },
+        beforeSend: function () {
+          // Show the loading spinner
+        },
+        success: function (response) {
+          // Hide the loading spinner
+
+          // Display the response in the answerDiv
+          $('#answer').css('display', 'block');
+          $('#answer').text(response.answer);
+          console.log(response.answer);
+        },
+        error: function () {
+          // Handle the error if needed
+          console.log(error);
+        }
+      });
+    })
+  })
+</script>
+
+<!-- Content -->
+<div class="container-fluid text-center" id="container">
+  <div class="row">
+    <div class="col-sm-12">
+      <iframe id="hidden-iframe" name="hidden-iframe" style="display:none;"></iframe>
+      <h1 class="text-center" style="color: #fbfef9;">Welcome to LegallyWise AI!</h1>
+      </br>
+      <p class="text-center" style="color: #fbfef9;" id="helpMsg">Please submit your legal inquiry in the designated
+        text field below and anticipate the response, which will be provided in the larger text box with a slight delay.</p>
+      <form id="question-form" action='/respond' method='post' target="hidden-iframe">
         <div class="row justify-content-center">
           <div class="col-sm-8">
-            <div id="answer" class="my-4" style="background-color: #fbfef9;"></div>
+            <div id="answer" class="my-4">
+            </div>
           </div>
-        </div>
-      </div>
+          <div class="form-group">
+            <label for="formLanguageSelect" style="color: #fbfef9;" id="languageLabel" class="col-auto">Select
+              Language</label>
+            <select class="form-control col-auto" id="formLanguageSelect" name="language">
+              <option>English</option>
+              <option>French</option>
+              <option>Spanish</option>
+              <option>Arabic</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="questionInput" style="color: #fbfef9;">What is your question?</label>
+            <textarea class="form-control" id="question-input" rows="1" style="white-space: nowrap;"></textarea>
+          </div>
+          <div>
+            <button type="submit" class="btn btn-primary d-block mx-auto"
+              style="background-color: #a31621; border-color: #a31621;margin-bottom: 70px;">Ask a Question</button>
+          </div>
+      </form>
     </div>
   </div>
-
-<img id="easter-egg" src="/img/easter.gif" style="display: none; border: 2px solid #954a1c;"/>
-
-  <%- include("templates/footer") %>
+</div>
+<img id="easter-egg" src="/img/easter.gif" style="display: none; border: 2px solid #954a1c;" />
+<%- include("templates/footer") %>
