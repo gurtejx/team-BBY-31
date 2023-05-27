@@ -3,6 +3,7 @@
   body {
     background-color: #191923;
   }
+
   input:-webkit-autofill {
     box-shadow: 0 0 0 30px #191923 inset;
     -webkit-box-shadow: 0 0 0 30px #191923 inset;
@@ -10,37 +11,23 @@
   }
 </style>
 
-<div
-  style="
+<div style="
     display: flex;
     justify-content: center;
     align-items: center;
     height: 70vh;
-  "
->
-  <div
-    class="alert"
-    style="
+  ">
+  <div class="alert" style="
       padding: 15px;
       width: 350px;
       margin: 0 auto;
       background-color: transparent;
       border: none;
       box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
-    "
-  >
+    ">
     <h2 style="text-align: center; color: #fbfef9">Log In</h2>
-    <form
-      action="/loggingin"
-      method="post"
-      style="display: flex; flex-direction: column"
-    >
-      <input
-        name="username"
-        type="text"
-        placeholder="Username"
-        class="form-input"
-        style="
+    <form action="/loggingin" method="post" style="display: flex; flex-direction: column">
+      <input name="username" type="text" placeholder="Username" class="form-input" style="
           background-color: transparent;
           border: none;
           border-bottom: 1px solid #ddd;
@@ -49,14 +36,8 @@
           padding: 8px;
           color: #fbfef9;
           outline: none;
-        "
-      />
-      <input
-        name="password"
-        type="password"
-        placeholder="Password"
-        class="form-input"
-        style="
+        " />
+      <input name="password" type="password" placeholder="Password" class="form-input" style="
           background-color: transparent;
           border: none;
           border-bottom: 1px solid #ddd;
@@ -65,32 +46,23 @@
           padding: 8px;
           color: #fbfef9;
           outline: none;
-        "
-      />
-      <button
-        class="btn"
-        style="
+        " />
+      <button class="btn" style="
           color: #fbfef9;
           padding: 10px;
           background-color: #a31621;
           border: none;
           border-radius: 4px;
-        "
-      >
+        ">
         Submit
       </button>
       <br />
-      <a
-        href="/forgotPassword"
-        style="
+      <a href="/forgotPassword" style="
           color: #fbfef9;
           text-decoration: none;
           text-align: right;
-        "
-        onmouseover="this.style.textDecoration='underline';"
-        onmouseout="this.style.textDecoration='none';"
-        >Reset Password</a
-      >
+        " onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='none';">Reset
+        Password</a>
     </form>
 
     <!-- if errorVariable = true, display error message -->

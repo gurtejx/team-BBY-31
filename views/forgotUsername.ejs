@@ -1,30 +1,33 @@
 <%- include("templates/header") %>
+
 <body style="background-color: #191923;">
-<div class="alert mt-3"  style="padding: 15px; width: 400px; margin: 0 auto; background-color: #191923;">
-    <h5 style=" text-align: center; color: #fbfef9;">Enter the email address associated with your account: </h5>
-    <br>
-    <form action='/sendResetEmail' method='post' style="display: flex; flex-direction: column;">
-        <input name='email' type='text' placeholder='Email' class="p-2 mb-2">
-        <button class="btn" style=" color: #fbfef9; padding: 10px; background-color: #a31621;">Submit</button>
-    </form>
-        
-    <!-- if errorVariable = true, display error message -->
-    <% if (req.query.blank) { %>
-        <p style="color: red;">Field cannot be blank. Please try again.</p>
-    <% } %>
-
-    <% if (req.query.invalid) { %>
-        <p style="color: red;">Invalid email format. Please try again.</p>
-    <% } %>
-
-    <% if (req.query.incorrect) { %>
-        <p style="color: red;">User not in record. Sign up please.</p>
-        <button class="btn btn-primary"><a href="/signUp"  style="color: #fff; text-decoration: none;">Sign Up</a></button>
+    <div class="alert mt-3" style="padding: 15px; width: 400px; margin: 0 auto; background-color: #191923;">
+        <h5 style=" text-align: center; color: #fbfef9;">Enter the email address associated with your account: </h5>
         <br>
-    <% } %>
-    
-  <button class="btn mt-3" style="background-color: #a31621; color: #fbfef9;"><a href="/forgotPassword"  style="color: #fbfef9; text-decoration: none;">Back</a></button>
-  </div>
-  </body>
+        <form action='/sendResetEmail' method='post' style="display: flex; flex-direction: column;">
+            <input name='email' type='text' placeholder='Email' class="p-2 mb-2">
+            <button class="btn" style=" color: #fbfef9; padding: 10px; background-color: #a31621;">Submit</button>
+        </form>
+
+        <!-- if errorVariable = true, display error message -->
+        <% if (req.query.blank) { %>
+        <p style="color: red;">Field cannot be blank. Please try again.</p>
+        <% } %>
+
+        <% if (req.query.invalid) { %>
+        <p style="color: red;">Invalid email format. Please try again.</p>
+        <% } %>
+
+        <% if (req.query.incorrect) { %>
+        <p style="color: red;">User not in record. Sign up please.</p>
+        <button class="btn btn-primary"><a href="/signUp" style="color: #fff; text-decoration: none;">Sign
+                Up</a></button>
+        <br>
+        <% } %>
+
+        <button class="btn mt-3" style="background-color: #a31621; color: #fbfef9;"><a href="/forgotPassword"
+                style="color: #fbfef9; text-decoration: none;">Back</a></button>
+    </div>
+</body>
 
 <%- include("templates/footer") %>

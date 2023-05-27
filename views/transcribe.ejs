@@ -1,173 +1,178 @@
 <%- include("templates/header") %>
-<!-- Not convinced we will use an answer and question format as bookgpt does.
-May be better just tp have our AI read the document uploaded and explain it in one box
-in simple terms.  -->
 <style>
   .mobile-text {
     font-size: 14px;
     line-height: 1.5;
     padding: 10px;
   }
-  body{
+
+  body {
     background-color: #191923;
   }
+
   #questionInput {
     font-size: 14px;
     border: 2px solid #392f5a;
   }
+
   #answerInput {
-      border: 2px solid #392f5a;
-      font-size: 14px;
-      height: 200px;
-      margin-bottom: 30px;
-      overflow: auto;
+    border: 2px solid #392f5a;
+    font-size: 14px;
+    height: 200px;
+    margin-bottom: 30px;
+    overflow: auto;
   }
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
-
-
 <script>
+  // Function to extract text from PDF
+  function extractTextFromPDF(file) {
+    return new Promise((resolve, reject) => {
+      var reader = new FileReader();
+      reader.onload = function (event) {
+        var typedarray = new Uint8Array(event.target.result);
+        pdfjsLib.getDocument(typedarray).promise.then(function (pdf) {
+          var totalPages = pdf.numPages;
+          var extractedText = "";
 
-// Function to extract text from PDF
-function extractTextFromPDF(file) {
-  return new Promise((resolve, reject) => {
-    var reader = new FileReader();
-    reader.onload = function(event) {
-      var typedarray = new Uint8Array(event.target.result);
-      pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
-        var totalPages = pdf.numPages;
-        var extractedText = "";
+          // Iterate over each page
+          var promises = [];
+          for (var i = 1; i <= totalPages; i++) {
+            promises.push(
+              pdf.getPage(i).then(function (page) {
+                return page.getTextContent().then(function (textContent) {
+                  // Concatenate the text content of each page
+                  var pageText = "";
+                  for (var j = 0; j < textContent.items.length; j++) {
+                    pageText += textContent.items[j].str + " ";
+                  }
+                  return pageText;
+                });
+              })
+            );
+          }
 
-        // Iterate over each page
-        var promises = [];
-        for (var i = 1; i <= totalPages; i++) {
-          promises.push(
-            pdf.getPage(i).then(function(page) {
-              return page.getTextContent().then(function(textContent) {
-                // Concatenate the text content of each page
-                var pageText = "";
-                for (var j = 0; j < textContent.items.length; j++) {
-                  pageText += textContent.items[j].str + " ";
-                }
-                return pageText;
-              });
-            })
-          );
-        }
-
-        // Wait for all promises to resolve
-        Promise.all(promises).then(function(results) {
-          extractedText = results.join(" ");
-          resolve(extractedText);
+          // Wait for all promises to resolve
+          Promise.all(promises).then(function (results) {
+            extractedText = results.join(" ");
+            resolve(extractedText);
+          });
         });
-      });
-    };
-    reader.readAsArrayBuffer(file);
-  });
-}
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  }
 
-function submitSummaryReq(event) {
+  function submitSummaryReq(event) {
     event.preventDefault(); // Prevent default form submission
     console.log("Summarize Request Made")
 
     var fileInput = $('#fileUpload')[0];
     var file = fileInput.files[0];
     if (file == null) {
-        console.log("No file uploaded");
-        return;
+      console.log("No file uploaded");
+      return;
     }
 
     $.ajax({
       type: 'POST',
       url: '/askQuestion',
-      data: JSON.stringify({ ques : "Summarize the document and simplify the jargon" }),
+      data: JSON.stringify({
+        ques: "Summarize the document and simplify the jargon"
+      }),
       processData: false,
       contentType: "application/json",
-      success: function(response) {
+      success: function (response) {
         console.log(response.reply);
         $('#answerInput').text(response.reply);
       },
-      error: function() {
+      error: function () {
         console.log("error making request");
         // Handle the error if needed
       }
     });
-}
+  }
 
-$(document).ready(function() {
-  console.log("script loaded");
+  $(document).ready(function () {
+    console.log("script loaded");
 
-  $('#fileUpload').change(function() {
-    console.log("File Uploaded!");
+    $('#fileUpload').change(function () {
+      console.log("File Uploaded!");
       // Get the form element
       var form = $('#uploadForm');
       // Hide the warning message
       $('#warningMsg').hide();
-      
+
       // Submit the form
       form.submit();
 
     });
 
-  $('#uploadForm').submit(async function(event) {
-    event.preventDefault(); // Prevent default form submission
+    $('#uploadForm').submit(async function (event) {
+      event.preventDefault(); // Prevent default form submission
 
-    var fileInput = $('#fileUpload')[0];
-    var file = fileInput.files[0];
-    var formData = await extractTextFromPDF(file);
-    var text = formData + "";
-    console.log("Text Extracted");
+      var fileInput = $('#fileUpload')[0];
+      var file = fileInput.files[0];
+      var formData = await extractTextFromPDF(file);
+      var text = formData + "";
+      console.log("Text Extracted");
 
-    $.ajax({
-      type: 'POST',
-      url: '/pdf',
-      data: JSON.stringify({ pdfData: text }),
-      processData: false,
-      contentType: "application/json",
-      success: function(response) {
-        console.log(response);
-      },
-      error: function() {
-        console.log('parse error');
-        // Handle the error if needed
-      }
+      $.ajax({
+        type: 'POST',
+        url: '/pdf',
+        data: JSON.stringify({
+          pdfData: text
+        }),
+        processData: false,
+        contentType: "application/json",
+        success: function (response) {
+          console.log(response);
+        },
+        error: function () {
+          console.log('parse error');
+          // Handle the error if needed
+        }
+      });
     });
-  });
 
-  $('#askQuestion').submit(async function(event) {
-    event.preventDefault(); // Prevent default form submission
+    $('#askQuestion').submit(async function (event) {
+      event.preventDefault(); // Prevent default form submission
 
-    var fileInput = $('#fileUpload')[0];
-    var file = fileInput.files[0];
-    if (file == null) {
+      var fileInput = $('#fileUpload')[0];
+      var file = fileInput.files[0];
+      if (file == null) {
         console.log("No file uploaded");
         return;
-    }
-
-    var question = $('#questionInput').val();
-    if(question == "") { console.log("no query"); return}
-
-    console.log(question);
-
-    $.ajax({
-      type: 'POST',
-      url: '/askQuestion',
-      data: JSON.stringify({ ques : question }),
-      processData: false,
-      contentType: "application/json",
-      success: function(response) {
-        console.log(response.reply);
-        $('#answerInput').text(response.reply);
-      },
-      error: function() {
-        console.log("error making request");
-        // Handle the error if needed
       }
+
+      var question = $('#questionInput').val();
+      if (question == "") {
+        console.log("no query");
+        return
+      }
+
+      console.log(question);
+
+      $.ajax({
+        type: 'POST',
+        url: '/askQuestion',
+        data: JSON.stringify({
+          ques: question
+        }),
+        processData: false,
+        contentType: "application/json",
+        success: function (response) {
+          console.log(response.reply);
+          $('#answerInput').text(response.reply);
+        },
+        error: function () {
+          console.log("error making request");
+          // Handle the error if needed
+        }
+      });
     });
   });
-});
-
 </script>
 
 <div class="container">
@@ -184,59 +189,37 @@ $(document).ready(function() {
       <div>
         <!-- File Upload -->
         <div class="form-group" style="color: #fbfef9;">
-          <label for="fileUpload" class="mobile-text" style="color: #fbfef9;" id="warningMsg"
-            >Upload PDF Document:
-            <i
-              >It should be primarily text. We can't guarantee the quality or
-              performance if the PDF is filled with images!</i
-            ></label
-          >
-          <iframe
-            id="hidden-iframe-pdf"
-            name="hidden-iframe-pdf"
-            style="display: none"
-          ></iframe>
-          <form
-            id="uploadForm"
-            action="/process-pdf"
-            method="post"
-            target="hidden-iframe-pdf"
-            enctype="multipart/form-data"
-          >
-            <input
-              type="file"
-              class="form-control-file"
-              id="fileUpload"
-              accept=".pdf"
-            />
-            <!-- <button type="submit" class="btn" style="background-color: #a31621;color: #fbfef9; margin-top: 3px;">Submit</button> -->
+          <label for="fileUpload" class="mobile-text" style="color: #fbfef9;" id="warningMsg">Upload PDF Document:
+            <i>It should be primarily text. We can't guarantee the quality or
+              performance if the PDF is filled with images!</i></label>
+          <iframe id="hidden-iframe-pdf" name="hidden-iframe-pdf" style="display: none"></iframe>
+          <form id="uploadForm" action="/process-pdf" method="post" target="hidden-iframe-pdf"
+            enctype="multipart/form-data">
+            <input type="file" class="form-control-file" id="fileUpload" accept=".pdf" />
           </form>
         </div>
 
-        <form
-            id="askQuestion"
-            action="/askQuestion"
-            method="post"
-            target="hidden-iframe-pdf"
-        >
-            <!-- Question -->
-        <div class="form-group">
-            <label for="questionInput" style="color: #fbfef9;">What is your question?:</label>
+        <form id="askQuestion" action="/askQuestion" method="post" target="hidden-iframe-pdf">
+          <!-- Question -->
+          <div class="form-group">
+            <label for="questionInput" style="color: #fbfef9;">What is your question?</label>
             <textarea class="form-control" id="questionInput" rows="1" style="white-space: nowrap;"></textarea>
           </div>
-  
+
           <!-- Answer -->
           <div class="form-group">
             <label for="answerInput" style="color: #fbfef9;">Answer:</label>
             <div class="form-control" id="answerInput" rows="2"></div>
           </div>
-  
+
           <div class="form-group text-center">
-            <button type="submit" class="btn" style="background-color: #a31621; color: #fbfef9; margin-bottom: 50px;" onclick="submitSummaryReq(event)">Summarize</button>
-            <button type="submit" class="btn" style="background-color: #a31621; color: #fbfef9; margin-bottom: 50px;" id="askBtn">Ask</button>
+            <button type="submit" class="btn" style="background-color: #a31621; color: #fbfef9; margin-bottom: 50px;"
+              onclick="submitSummaryReq(event)">Summarize</button>
+            <button type="submit" class="btn" style="background-color: #a31621; color: #fbfef9; margin-bottom: 50px;"
+              id="askBtn">Ask</button>
           </div>
         </form>
-        
+
       </div>
     </div>
   </div>

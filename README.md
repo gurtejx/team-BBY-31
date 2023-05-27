@@ -703,9 +703,9 @@ Mongodb v6.0.5
 
 
 
-## Installation
+# Installation
 
-# Prerequisites
+Prerequisites
 Before you start, ensure you have these prerequisites installed:
 
 Node.js & npm: You need Node.js installed to run this app. Check if you have it installed by running node -v. If not, you can download Node.js from their site. 
@@ -736,7 +736,7 @@ This will allow you to access our localhost link on any browser you have: http:/
 
 
 
-## Features
+# Features
 
 Consult LegallyWise AI: Click the Consult LegallyWise AI button at the homepage or the logo located on the navbar. This will take you to a room where you can ask a question and get a response that has come from the data the AI has been trained on. You may also choose a language before you click submit to get a response in a language you feel more comfortable in or have a better understanding.
 
@@ -748,10 +748,13 @@ Contact: This can be accessed by clicking 'Contact' on the navbar and will take 
 
 About: This can be accessed by clicking 'About' on the navbar and will take the user to a page where the app is explained a little and some information about the team that worked on the project.
 
+Easter Egg: When the user clicks on the 'Ask a question' button 5 or more times continuously, a GIF 
+appears that asks user not to spam. It's a cool feature that you should try.
+
+Password reset: In case the user forgets their password, they can click on the 'Forgot username/password' link in the login form on login page, enter their username, then answer the security question they set at the time of signing up and they will be able to set a new password. In case the user forgets their username as well, they can click on the 'Forgot username' link on the forgot password page form. Then, a custom one-time usable password reset email is sent to the user. This email contains the user's username and a link to set the new password.
 
 
-
-## Credits
+# Credits
 OpenAI. (n.d.). OpenAI. https://openai.com/
 
 Welcome to PyPDF2 &mdash; PyPDF2 documentation. (n.d.). Welcome to PyPDF2 &Mdash; PyPDF2 Documentation. https://pypdf2.readthedocs.io/en/3.0.0/
@@ -760,4 +763,37 @@ C. (n.d.). API_documentation/EN.md at master · canlii/API_documentation. GitHub
 
 Welcome to LangChain — 🦜🔗 LangChain 0.0.181. (2023, May 26). Welcome to LangChain — 🦜🔗 LangChain 0.0.181. https://python.langchain.com/en/latest/index.html
 
+Licenses: OpenAI Key
 
+
+# AI
+AI is increasingly becoming a sensation in the tech world, and more so are Natural language processing models like chatGPT by OpenAI. We realized the importance of staying up to date with the industry and decided to use a NLM model in our app. This project provided us with a deep understanding of AI technology, from staying updated with the latest models to integrating them into our application through API usage. Additionally, we explored the possibilities of training custom models to suit our specific requirements, further enhancing the capabilities of our application.
+
+1. Utilizing API Integration: We discovered how to integrate AI models into our application using APIs. Specifically, we learned how to incorporate OpenAI's GPT model by utilizing their API. This enabled us to access the model's capabilities and generate responses based on user input, enhancing the interactive experience within our application.
+
+2. Custom Model Training: One fascinating discovery was the ability to train our own custom model using our pre-processed dataset. We delved into the process of training the model on our specific data, which allowed us to create a model that was knowledgeable and tailored to our application's needs. By leveraging OpenAI's embedding feature, we could query the model effectively and retrieve relevant information from our dataset.
+
+3. Data Interaction Between Servers: During the development of our application and the creation of our custom language model, we encountered a significant challenge. Our application was built in a Node.js environment, but we faced the hurdle that Python was the only supported language by OpenAI to interact with their models. Unfortunately, there was no equivalent solution available for Node.js at that time. Although we explored workarounds to run Python scripts within a Node.js environment, we encountered issues with importing modules, limiting our options to simple script imports. 
+
+To overcome this obstacle, we conducted thorough research and adopted an innovative approach. We modified the Python code to function as a standalone server, capable of responding to incoming POST requests containing questions or prompts. The Python server then returned the response text encapsulated within a JSON object. By hosting the Python and Node.js servers separately and establishing communication between them, we resolved the compatibility issue and ensured each server operated within its own environment. 
+
+This clever solution enabled us to maintain the functionality of our application while effectively utilizing the components we had developed earlier.
+
+4. Utilizing Documentation: A significant portion of our app's features were the result of extensive research and leveraging information from various sources, including the internet and the respective companies involved. We dedicated considerable time to reading documentation, conducting tests, and troubleshooting to ensure that our efforts yielded positive results. There were moments when we felt overwhelmed and unsure if we could make progress, but it's important to acknowledge that such feelings are normal. Taking breaks and returning to the task with a fresh mindset proved to be highly beneficial. 
+
+It's essential to understand that processing a vast amount of information requires time and patience before effectively applying it. It's crucial not to lose hope when initially attempting to implement new ideas or features that don't work as expected. It's a common occurrence in the development process. Most of the time, you're only a step or two away from resolving the issue. It's important not to give up and persevere through the challenges encountered.
+
+
+# Contact Information
+
+Gurtej Malik:
+gurtejmalik@gmail.com
+
+Amrit Jhatu:
+ajhatu@my.bcit.ca
+
+Abhishek Chouhan:
+achouhan4@my.bcit.ca
+
+Armaan Pruthi:
+apruthi1@my.bcit.ca
