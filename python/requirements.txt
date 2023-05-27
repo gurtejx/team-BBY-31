@@ -1,0 +1,4 @@
+mysqlclient==2.0.3
+llama_index==0.6.8
+langchain==0.0.172
+python-dotenv==1.0.0

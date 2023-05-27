@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Button Click Example</title>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const button = document.getElementById("myButton");
+        const resultDiv = document.getElementById("result");
+
+        button.addEventListener("click", async () => {
+          try {
+            const response = await fetch("http://localhost:8000/hello", {
+              mode: "cors", // Enable CORS
+            });
+            if (!response.ok) {
+              throw new Error("Request failed");
+            }
+
+            const result = await response.text();
+            resultDiv.textContent = result;
+          } catch (error) {
+            console.error(error);
+          }
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <button id="myButton">Click Me!</button>
+    <div id="result"></div>
+  </body>
+</html>
